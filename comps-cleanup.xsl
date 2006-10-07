@@ -6,7 +6,7 @@
      - keep a single package reference per group,
 
      Typical usage is:
-     $ xsltproc -o output-file comps.cleanup.xsl original-file
+     $ xsltproc -o output-file comps-cleanup.xsl original-file
 
      You can use the "novalid" xsltproc switch to kill the warning about
      Fedora not installing the comps DTD anywhere xsltproc can find it.
@@ -50,11 +50,13 @@
   </xsl:template>
 <!-- Warn about duplicate groups being merged -->
   <xsl:template match="group[generate-id(.) != generate-id(key('unique-groups',id/text())[1])]" priority="2">
-    <xsl:message>! Duplicate group <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/> will be merged.</xsl:message>
+    <xsl:message>☹☹ Duplicate group <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/> will be merged.</xsl:message>
+    <xsl:message> </xsl:message>
   </xsl:template>
 <!-- Warn about duplicate categories being merged -->
   <xsl:template match="category[generate-id(.) != generate-id(key('unique-categories',id/text())[1])]" priority="2">
-    <xsl:message>! Duplicate category <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/> will be merged.</xsl:message>
+    <xsl:message>☹☹ Duplicate category <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/> will be merged.</xsl:message>
+    <xsl:message> </xsl:message>
   </xsl:template>
 <!-- Sort packages within a group by class then name -->
   <xsl:template match="packagelist" priority="1">
@@ -83,20 +85,22 @@
   </xsl:template>
 <!-- Kill duplicate package entries -->
   <xsl:template match="packagereq[generate-id(.) != generate-id(key('unique-package-entries',concat(../../id/text(),'/',text()))[1])]" priority="2">
-    <xsl:message>! Ignoring duplicate reference to <xsl:value-of select="concat(@type,' package ',text())"/> in group <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/>.</xsl:message>
+    <xsl:message>☹☹☹ Ignoring duplicate reference to <xsl:value-of select="concat(@type,' package ',text())"/> in group <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/>.</xsl:message>
     <xsl:message>  Only its first reference (<xsl:value-of select="key('unique-package-entries',concat(../../id/text(),'/',text()))[1]/@type"/> package) will be kept.</xsl:message>
+    <xsl:message> </xsl:message>
   </xsl:template>
 <!-- Kill duplicate group entries -->
   <xsl:template match="category/grouplist/groupid[generate-id(.) != generate-id(key('unique-group-entries',concat(../../id/text(),'/',text()))[1])]" priority="1">
-    <xsl:message>! Ignoring duplicate reference to group <xsl:value-of select="text()"/> in category <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/>.</xsl:message>
+    <xsl:message>☹ Ignoring duplicate reference to group <xsl:value-of select="text()"/> in category <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/>.</xsl:message>
+    <xsl:message> </xsl:message>
   </xsl:template>
-<!-- Warn about packages referenced several times -->
-  <xsl:template match="packagereq[generate-id(.) != generate-id(key('unique-packages',text())[1])]" priority="1">
-    <xsl:message>o Package <xsl:value-of select="text()"/> in group <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/>
-  was referenced before:</xsl:message>
-    <xsl:for-each select="key('unique-packages',text())[generate-id(.) != generate-id(current())]">
-      <xsl:message> - <xsl:value-of select="@type"/> package in group <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/></xsl:message>
+<!-- Warn about packages referenced several times (at least twice;)) -->
+  <xsl:template match="packagereq[generate-id(.) = generate-id(key('unique-packages',text())[2])]" priority="1">
+    <xsl:message>☹ Package <xsl:value-of select="text()"/> is referenced several times:</xsl:message>
+    <xsl:for-each select="key('unique-packages',text())">
+      <xsl:message> ✓ <xsl:value-of select="@type"/> package in group <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/></xsl:message>
     </xsl:for-each>
+    <xsl:message> </xsl:message>
     <xsl:copy>
       <xsl:apply-templates select="@*"/>
       <xsl:apply-templates select="*|text()|comment()"/>
