@@ -13,7 +13,7 @@
      However without DTD there is no way to check the files completely.
 
      © Nicolas Mailhot <nim at fedoraproject dot org> 2006 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exsl="http://exslt.org/common" version="1.0" extension-element-prefixes="exsl">
   <xsl:strip-space elements="*"/>
   <xsl:output method="xml" indent="yes" encoding="UTF-8" doctype-system="comps.dtd" doctype-public="-//Red Hat, Inc.//DTD Comps info//EN"/>
   <xsl:key name="unique-groups" match="/comps/group" use="id/text()"/>
@@ -25,6 +25,19 @@
   <xsl:key name="unique-group-entries" match="/comps/category/grouplist/groupid" use="concat(../../id/text(),'/',text())"/>
   <xsl:variable name="lcletters">abcdefghijklmnopqrstuvwxyz</xsl:variable>
   <xsl:variable name="ucletters">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+  <xsl:variable name="type-sort-order">
+    <unknown/>
+    <mandatory/>
+    <conditional/>
+    <default/>
+    <optional/>
+  </xsl:variable>
+  <xsl:variable name="attribute-sort-order">
+    <unknown/>
+    <type/>
+    <requires/>
+    <basearch/>
+  </xsl:variable>
 <!-- Preserve most nodes -->
   <xsl:template match="*" priority="0">
     <xsl:apply-templates select="." mode="normalize"/>
@@ -34,7 +47,7 @@
     <xsl:apply-templates select="preceding-sibling::node()[normalize-space()][1][self::comment()] "/>
     <xsl:copy>
       <xsl:apply-templates select="@*">
-        <xsl:sort select="translate(name(),$lcletters,$ucletters)"/>
+        <xsl:sort select="count(exsl:node-set($attribute-sort-order)/*[name() = name(current())]/preceding-sibling::*)" data-type="number"/>
       </xsl:apply-templates>
       <xsl:apply-templates select="*|text()"/>
     </xsl:copy>
@@ -70,16 +83,8 @@
 <!-- Sort packages within a group by class then name -->
   <xsl:template match="packagelist" priority="1">
     <xsl:copy>
-      <xsl:apply-templates select="key('packages-by-group',../id/text())[@type = 'mandatory']">
-        <xsl:sort select="translate(text(),$lcletters,$ucletters)"/>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="key('packages-by-group',../id/text())[@type = 'conditional']">
-        <xsl:sort select="translate(text(),$lcletters,$ucletters)"/>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="key('packages-by-group',../id/text())[@type = 'default']">
-        <xsl:sort select="translate(text(),$lcletters,$ucletters)"/>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="key('packages-by-group',../id/text())[@type = 'optional']">
+      <xsl:apply-templates select="key('packages-by-group',../id/text())">
+        <xsl:sort select="count(exsl:node-set($type-sort-order)/*[name() = current()/@type]/preceding-sibling::*)+1" data-type="number"/>
         <xsl:sort select="translate(text(),$lcletters,$ucletters)"/>
       </xsl:apply-templates>
     </xsl:copy>
