@@ -90,7 +90,7 @@
 <!-- Kill duplicate package entries -->
   <xsl:template match="packagereq[generate-id(.) != generate-id(key('unique-package-entries',concat(../../id/text(),'/',text()))[1])]" priority="2">
     <xsl:message>☹☹☹ Ignoring duplicate reference to <xsl:value-of select="concat(@type,' package ',text())"/> in group <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/>.</xsl:message>
-    <xsl:message>  Only its first reference (<xsl:value-of select="key('unique-package-entries',concat(../../id/text(),'/',text()))[1]/@type"/> package) will be kept.</xsl:message>
+    <xsl:message>    ⇒ Only its first reference (<xsl:value-of select="key('unique-package-entries',concat(../../id/text(),'/',text()))[1]/@type"/> package) will be kept.</xsl:message>
   </xsl:template>
 <!-- Kill duplicate group entries -->
   <xsl:template match="category/grouplist/groupid[generate-id(.) != generate-id(key('unique-group-entries',concat(../../id/text(),'/',text()))[1])]" priority="1">
