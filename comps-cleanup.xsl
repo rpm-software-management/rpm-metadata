@@ -19,8 +19,8 @@
   <xsl:key name="unique-groups" match="/comps/group" use="id/text()"/>
   <xsl:key name="unique-categories" match="/comps/category" use="id/text()"/>
   <xsl:key name="packages-by-group" match="/comps/group/packagelist/packagereq" use="../../id/text()"/>
-  <xsl:key name="unique-packages" match="/comps/group/packagelist/packagereq" use="text()"/>
   <xsl:key name="unique-package-entries" match="/comps/group/packagelist/packagereq" use="concat(../../id/text(),'/',text())"/>
+  <xsl:key name="unique-packages" match="/comps/group/packagelist/packagereq[generate-id(.) = generate-id(key('unique-package-entries',concat(../../id/text(),'/',text()))[1])]" use="text()"/>
   <xsl:key name="groups-by-category" match="/comps/category/grouplist/groupid" use="../../id/text()"/>
   <xsl:key name="unique-group-entries" match="/comps/category/grouplist/groupid" use="concat(../../id/text(),'/',text())"/>
   <xsl:variable name="lcletters">abcdefghijklmnopqrstuvwxyz</xsl:variable>
@@ -118,8 +118,8 @@
   <xsl:template match="category/grouplist/groupid[generate-id(.) != generate-id(key('unique-group-entries',concat(../../id/text(),'/',text()))[1])]" priority="1">
     <xsl:message>  ☹ Ignoring duplicate reference to group <xsl:value-of select="text()"/> in category <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/>.</xsl:message>
   </xsl:template>
-<!-- Warn about packages referenced several times (at least twice;)) -->
-  <xsl:template match="packagereq[generate-id(.) = generate-id(key('unique-packages',text())[2])]" priority="1">
+<!-- Warn about packages referenced several times -->
+  <xsl:template match="packagereq[count(key('unique-packages',text())) > 1 and generate-id(.) = generate-id(key('unique-packages',text())[1])]" priority="1">
     <xsl:variable name="dupes" select="key('unique-packages',text())"/>
     <xsl:message>  ☹ Package <xsl:value-of select="text()"/> is referenced in <xsl:value-of select="count($dupes)"/> groups:</xsl:message>
     <xsl:for-each select="$dupes">
