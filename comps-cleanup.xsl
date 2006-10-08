@@ -119,7 +119,7 @@
     <xsl:message>  ☹ Ignoring duplicate reference to group <xsl:value-of select="text()"/> in category <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/>.</xsl:message>
   </xsl:template>
 <!-- Warn about packages referenced several times -->
-  <xsl:template match="packagereq[count(key('unique-packages',text())) > 1 and generate-id(.) = generate-id(key('unique-packages',text())[1])]" priority="1">
+  <xsl:template match="packagereq[generate-id(.) = generate-id(key('unique-packages',text())[2])]" priority="1">
     <xsl:variable name="dupes" select="key('unique-packages',text())"/>
     <xsl:message>  ☹ Package <xsl:value-of select="text()"/> is referenced in <xsl:value-of select="count($dupes)"/> groups:</xsl:message>
     <xsl:for-each select="$dupes">
