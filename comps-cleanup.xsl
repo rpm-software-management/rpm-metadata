@@ -100,6 +100,7 @@
   <xsl:template match="packagereq[generate-id(.) = generate-id(key('unique-packages',text())[2])]" priority="1">
     <xsl:message>  ☹ Package <xsl:value-of select="text()"/> is referenced in multiple groups:</xsl:message>
     <xsl:for-each select="key('unique-packages',text())">
+      <xsl:sort select="../../id/text()"/>
       <xsl:message>     ✓ <xsl:value-of select="@type"/> package in group <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/></xsl:message>
     </xsl:for-each>
     <xsl:apply-templates select="preceding-sibling::node()[normalize-space()][1][self::comment()] "/>
