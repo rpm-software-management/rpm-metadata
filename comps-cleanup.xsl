@@ -61,23 +61,35 @@
   <xsl:template match="@*">
     <xsl:copy/>
   </xsl:template>
-<!-- Sort groups by id -->
+<!-- Sort groups by id, and categories by display order -->
   <xsl:template match="comps" priority="1">
+    <xsl:apply-templates select="preceding-sibling::node()[normalize-space()][1][self::comment()] "/>
     <xsl:copy>
       <xsl:apply-templates select="group">
         <xsl:sort select="translate(id/text(),$lcletters,$ucletters)"/>
       </xsl:apply-templates>
       <xsl:apply-templates select="category">
         <xsl:sort select="display_order/text()"/>
+        <xsl:sort select="translate(id/text(),$lcletters,$ucletters)"/>
       </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
+<!-- Warn about empty groups -->
+  <xsl:template match="group[count(key('packages-by-group',id/text()))=0]" priority="2">
+    <xsl:message>☹☹☹ Empty group <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/>!</xsl:message>
+    <xsl:apply-templates select="." mode="normalize"/>
+  </xsl:template>
 <!-- Warn about duplicate groups being merged -->
-  <xsl:template match="group[generate-id(.) != generate-id(key('unique-groups',id/text())[1])]" priority="2">
+  <xsl:template match="group[generate-id(.) != generate-id(key('unique-groups',id/text())[1])]" priority="3">
     <xsl:message> ☹☹ Duplicate group <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/> will be merged.</xsl:message>
   </xsl:template>
+<!-- Warn about empty categories -->
+  <xsl:template match="category[count(key('groups-by-category',id/text()))=0]" priority="2">
+    <xsl:message>☹☹☹ Empty category <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/>!</xsl:message>
+    <xsl:apply-templates select="." mode="normalize"/>
+  </xsl:template>
 <!-- Warn about duplicate categories being merged -->
-  <xsl:template match="category[generate-id(.) != generate-id(key('unique-categories',id/text())[1])]" priority="2">
+  <xsl:template match="category[generate-id(.) != generate-id(key('unique-categories',id/text())[1])]" priority="3">
     <xsl:message> ☹☹ Duplicate category <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/> will be merged.</xsl:message>
   </xsl:template>
 <!-- Sort packages within a group by class then name -->
