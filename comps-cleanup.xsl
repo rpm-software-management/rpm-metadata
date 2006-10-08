@@ -101,7 +101,7 @@
     <xsl:variable name="dupes" select="key('unique-packages',text())"/>
     <xsl:message>  ☹ Package <xsl:value-of select="text()"/> is referenced by <xsl:value-of select="count($dupes)"/> groups:</xsl:message>
     <xsl:for-each select="$dupes">
-      <xsl:sort select="../../id/text()"/>
+      <xsl:sort select="translate(../../id/text(),$lcletters,$ucletters)"/>
       <xsl:message>     ✓ <xsl:value-of select="@type"/> package in group <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/></xsl:message>
     </xsl:for-each>
     <xsl:apply-templates select="preceding-sibling::node()[normalize-space()][1][self::comment()] "/>
