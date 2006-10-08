@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- This stylesheet will:
-     - reorder and indent a comps file,
+     - reorder, indent and normalize a comps file,
      - merge duplicate groups and categories,
-     - warn about packages referenced multiple times,
-     - keep a single package reference per group,
+     - warn about packages referenced by multiple groups,
+     - kill multiple references to the same package within a group,
 
      Typical usage is:
      $ xsltproc -o output-file comps-cleanup.xsl original-file
 
-     You can use the "novalid" xsltproc switch to kill the warning about
+     You can use the ‑‑novalid xsltproc switch to kill the warning about
      Fedora not installing the comps DTD anywhere xsltproc can find it.
      However without DTD there is no way to check the files completely.
 
@@ -27,10 +27,15 @@
   <xsl:variable name="ucletters">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
 <!-- Preserve most nodes -->
   <xsl:template match="*" priority="0">
+    <xsl:apply-templates select="." mode="normalize"/>
+  </xsl:template>
+  <xsl:template match="*" mode="normalize">
 <!-- Group comments with the logically-following element -->
     <xsl:apply-templates select="preceding-sibling::node()[normalize-space()][1][self::comment()] "/>
     <xsl:copy>
-      <xsl:apply-templates select="@*"/>
+      <xsl:apply-templates select="@*">
+        <xsl:sort select="translate(name(),$lcletters,$ucletters)"/>
+      </xsl:apply-templates>
       <xsl:apply-templates select="*|text()"/>
     </xsl:copy>
   </xsl:template>
@@ -104,10 +109,6 @@
       <xsl:sort select="translate(../../id/text(),$lcletters,$ucletters)"/>
       <xsl:message>     ✓ <xsl:value-of select="@type"/> package in group <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/></xsl:message>
     </xsl:for-each>
-    <xsl:apply-templates select="preceding-sibling::node()[normalize-space()][1][self::comment()] "/>
-    <xsl:copy>
-      <xsl:apply-templates select="@*"/>
-      <xsl:apply-templates select="*|text()"/>
-    </xsl:copy>
+    <xsl:apply-templates select="." mode="normalize"/>
   </xsl:template>
 </xsl:stylesheet>
