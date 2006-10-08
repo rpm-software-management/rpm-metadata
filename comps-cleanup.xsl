@@ -96,7 +96,7 @@
   <xsl:template match="packagelist" priority="1">
     <xsl:copy>
       <xsl:apply-templates select="key('packages-by-group',../id/text())">
-        <xsl:sort select="count(exsl:node-set($type-sort-order)/*[name() = current()/@type]/preceding-sibling::*)+1" data-type="number"/>
+        <xsl:sort select="count(exsl:node-set($type-sort-order)/*[name() = current()/@type]/preceding-sibling::*)" data-type="number"/>
         <xsl:sort select="translate(text(),$lcletters,$ucletters)"/>
       </xsl:apply-templates>
     </xsl:copy>
