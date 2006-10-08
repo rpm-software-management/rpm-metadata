@@ -121,7 +121,7 @@
 <!-- Warn about packages referenced several times (at least twice;)) -->
   <xsl:template match="packagereq[generate-id(.) = generate-id(key('unique-packages',text())[2])]" priority="1">
     <xsl:variable name="dupes" select="key('unique-packages',text())"/>
-    <xsl:message>  ☹ Package <xsl:value-of select="text()"/> is referenced by <xsl:value-of select="count($dupes)"/> groups:</xsl:message>
+    <xsl:message>  ☹ Package <xsl:value-of select="text()"/> is referenced in <xsl:value-of select="count($dupes)"/> groups:</xsl:message>
     <xsl:for-each select="$dupes">
       <xsl:sort select="translate(../../id/text(),$lcletters,$ucletters)"/>
       <xsl:message>     ✓ <xsl:value-of select="@type"/> package in group <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/></xsl:message>
