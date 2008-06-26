@@ -52,28 +52,12 @@
       <oneOrMore>
         <ref name="groupreq"/>
       </oneOrMore>
-<!-- What this part is intended to do is a deep mystery -->
-      <zeroOrMore>
-        <ref name="metapkg"/>
-      </zeroOrMore>
     </element>
   </define>
   <define name="groupreq">
     <element name="groupreq">
       <a:documentation>Other groups that this group requires.</a:documentation>
       <ref name="groupname"/>
-    </element>
-  </define>
-  <define name="metapkg">
-    <element name="metapkg">
-      <a:documentation>This item is mysterious and not typically used in Fedora.</a:documentation>
-      <attribute name="type">
-        <choice>
-          <value>default</value>
-          <value>optional</value>
-        </choice>
-      </attribute>
-      <ref name="packagename"/>
     </element>
   </define>
   <define name="packagelist">
@@ -139,28 +123,43 @@
     <element name="id">
       <ref name="ID"/>
     </element>
-    <element name="name">
-      <ref name="string"/>
-    </element>
-    <zeroOrMore>
-      <element name="name">
-        <attribute name="xml:lang">
-          <ref name="locale"/>
-        </attribute>
-        <ref name="string"/>
-      </element>
-    </zeroOrMore>
-    <element name="description">
-      <ref name="string"/>
-    </element>
-    <zeroOrMore>
-      <element name="description">
-        <attribute name="xml:lang">
-          <ref name="locale"/>
-        </attribute>
-        <ref name="string"/>
-      </element>
-    </zeroOrMore>
+    <choice>
+      <!-- Either we have one _name and one _description (comps.xml.in) -->
+      <group>
+        <element name="_name">
+          <ref name="string"/>
+        </element>
+        <element name="_description">
+          <ref name="string"/>
+        </element>
+      </group>
+      <!-- Or we have one name, one description, and then zero-or-more
+           localized names and descriptions following that. -->
+      <group>
+        <element name="name">
+          <ref name="string"/>
+        </element>
+        <zeroOrMore>
+          <element name="name">
+            <attribute name="xml:lang">
+              <ref name="locale"/>
+            </attribute>
+            <ref name="string"/>
+          </element>
+        </zeroOrMore>
+        <element name="description">
+          <ref name="string"/>
+        </element>
+        <zeroOrMore>
+          <element name="description">
+            <attribute name="xml:lang">
+              <ref name="locale"/>
+            </attribute>
+            <ref name="string"/>
+          </element>
+        </zeroOrMore>
+      </group>
+    </choice>
   </define>
   <define name="boolean">
     <choice>
