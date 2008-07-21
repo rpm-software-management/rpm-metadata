@@ -21,6 +21,10 @@
       <zeroOrMore>
         <ref name="category"/>
       </zeroOrMore>
+      <optional>
+        <ref name="whiteout"/>
+        <ref name="blacklist"/>
+      </optional>
     </element>
   </define>
   <define name="group">
@@ -160,6 +164,65 @@
         </zeroOrMore>
       </group>
     </choice>
+  </define>
+  <define name="blacklist">
+    <a:documentation>
+    The "blacklist" is a list of packages that will be *removed* if found
+    during an upgrade. Typically this is used to handle tricky upgrade cases
+    that can't be modeled with existing RPM Obsoletes/Conflicts/etc.
+
+    Here's an example: In FC6, hal was a multilib package, but in F7 we split
+    it into (non-multilib) hal and (multilib) hal-libs.
+    So the system starts with hal.x86_64 and hal.i386 (for multilib compat).
+    We want to upgrade to hal.x86_64 and hal-libs.x86_64, with hal-libs.i386
+    for multilib. Upgrading hal.x86_64 will bring in hal-libs.x86_64, and
+    upgrading hal.i386 brings in hal-libs.i386. Adding a blacklist item for
+    'hal.i386' causes anaconda to remove the (now-unneeded) hal.i386, 
+    which gives us the desired outcome.
+    </a:documentation>
+    <zeroOrMore>
+      <element name="package">
+        <attribute name="name">
+          <ref name="string"/>
+        </attribute>
+        <optional>
+          <attribute name="arch">
+            <ref name="string"/>
+            <a:documentation>
+              Arch to blacklist this package from. If unspecified, it will be
+              blocked on all arches.
+              <!-- Technically this should be an enum of known arches:
+              i386 x86_64 ppc ppc64 ia64 sparc alpha ... -->
+            </a:documentation>
+          </attribute>
+        </optional>
+      </element>
+    </zeroOrMore>
+  </define>
+  <define name="whiteout">
+    <a:documentation>
+    The RPM "whiteout" list is used to by RPM to break dependency loops. 
+    Each "ignoredep" element has two attributes - "package" and "requires" -
+    which are both package names. While calculating dependencies, RPM will
+    ignore any dependency that results in p requiring r. 
+
+    This is used to keep upgrades from getting stuck on known dependency loops,
+    like with mutually dependent packages (e.g. xinitrc and xorg-x11)
+
+    To feed this info to RPM, each item should be converted to a string of the
+    form 'package>requires', and the RPM macro '_dependency_whiteout' should be
+    filled with a (newline-separated) list of these items.
+    </a:documentation>
+    <zeroOrMore>
+      <element name="ignoredep">
+        <attribute name="package">
+          <ref name="string"/>
+        </attribute>
+        <attribute name="requires">
+          <ref name="string"/>
+        </attribute>
+      </element>
+    </zeroOrMore>
   </define>
   <define name="boolean">
     <choice>
