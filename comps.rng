@@ -22,8 +22,10 @@
         <ref name="category"/>
       </zeroOrMore>
       <optional>
-        <ref name="whiteout"/>
-        <ref name="blacklist"/>
+        <interleave><!-- We don't care what order these are in -->
+          <ref name="whiteout"/>
+          <ref name="blacklist"/>
+        </interleave>
       </optional>
     </element>
   </define>
@@ -180,24 +182,26 @@
     'hal.i386' causes anaconda to remove the (now-unneeded) hal.i386, 
     which gives us the desired outcome.
     </a:documentation>
-    <zeroOrMore>
-      <element name="package">
-        <attribute name="name">
-          <ref name="string"/>
-        </attribute>
-        <optional>
-          <attribute name="arch">
+    <element name="blacklist">
+      <zeroOrMore>
+        <element name="package">
+          <attribute name="name">
             <ref name="string"/>
-            <a:documentation>
-              Arch to blacklist this package from. If unspecified, it will be
-              blocked on all arches.
-              <!-- Technically this should be an enum of known arches:
-              i386 x86_64 ppc ppc64 ia64 sparc alpha ... -->
-            </a:documentation>
           </attribute>
-        </optional>
-      </element>
-    </zeroOrMore>
+          <optional>
+            <attribute name="arch">
+              <ref name="string"/>
+              <a:documentation>
+                Arch to blacklist this package from. If unspecified, it will be
+                blocked on all arches.
+                <!-- Technically this should be an enum of known arches:
+                i386 x86_64 ppc ppc64 ia64 sparc alpha ... -->
+              </a:documentation>
+            </attribute>
+          </optional>
+        </element>
+      </zeroOrMore>
+    </element>
   </define>
   <define name="whiteout">
     <a:documentation>
@@ -213,16 +217,18 @@
     form 'package>requires', and the RPM macro '_dependency_whiteout' should be
     filled with a (newline-separated) list of these items.
     </a:documentation>
-    <zeroOrMore>
-      <element name="ignoredep">
-        <attribute name="package">
-          <ref name="string"/>
-        </attribute>
-        <attribute name="requires">
-          <ref name="string"/>
-        </attribute>
-      </element>
-    </zeroOrMore>
+    <element name="whiteout">
+      <zeroOrMore>
+        <element name="ignoredep">
+          <attribute name="package">
+            <ref name="string"/>
+          </attribute>
+          <attribute name="requires">
+            <ref name="string"/>
+          </attribute>
+        </element>
+      </zeroOrMore>
+    </element>
   </define>
   <define name="boolean">
     <choice>
