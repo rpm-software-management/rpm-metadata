@@ -215,7 +215,7 @@
 
     To feed this info to RPM, each item should be converted to a string of the
     form 'package>requires', and the RPM macro '_dependency_whiteout' should be
-    filled with a (newline-separated) list of these items.
+    filled with a (whitespace-separated) list of these items.
     </a:documentation>
     <element name="whiteout">
       <zeroOrMore>
