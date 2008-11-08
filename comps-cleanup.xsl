@@ -12,7 +12,7 @@
      Fedora not installing the comps DTD anywhere xsltproc can find it.
      However without DTD there is no way to check the files completely.
 
-     © Nicolas Mailhot <nim at fedoraproject dot org> 2006 -->
+     © Nicolas Mailhot <nim at fedoraproject dot org> 2006-2008 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exsl="http://exslt.org/common" version="1.0" extension-element-prefixes="exsl">
   <xsl:strip-space elements="*"/>
   <xsl:output method="xml" indent="yes" encoding="UTF-8" doctype-system="comps.dtd" doctype-public="-//Red Hat, Inc.//DTD Comps info//EN"/>
@@ -34,16 +34,19 @@
   </xsl:variable>
   <xsl:variable name="attribute-sort-order">
     <unknown/>
+    <arch/>
+    <name/>
+    <package/>
     <type/>
     <requires/>
     <basearch/>
   </xsl:variable>
-<!-- Preserve most nodes -->
+  <!-- Preserve most nodes -->
   <xsl:template match="*" priority="0">
     <xsl:apply-templates select="." mode="normalize"/>
   </xsl:template>
   <xsl:template match="*" mode="normalize">
-<!-- Group comments with the logically-following element -->
+    <!-- Group comments with the logically-following element -->
     <xsl:apply-templates select="preceding-sibling::node()[normalize-space()][1][self::comment()] "/>
     <xsl:copy>
       <xsl:apply-templates select="@*">
@@ -52,16 +55,16 @@
       <xsl:apply-templates select="*|text()"/>
     </xsl:copy>
   </xsl:template>
-<!-- Preserve attributes and text nodes -->
+  <!-- Preserve attributes and text nodes -->
   <xsl:template match="comment()|text()">
     <xsl:apply-templates select="preceding-sibling::node()[normalize-space()][1][self::comment()] "/>
     <xsl:copy/>
   </xsl:template>
-<!-- Preserve attributes -->
+  <!-- Preserve attributes -->
   <xsl:template match="@*">
     <xsl:copy/>
   </xsl:template>
-<!-- Sort groups by id, and categories by display order -->
+  <!-- Sort groups by id, and categories by display order -->
   <xsl:template match="comps" priority="1">
     <xsl:apply-templates select="preceding-sibling::node()[normalize-space()][1][self::comment()] "/>
     <xsl:copy>
@@ -72,27 +75,45 @@
         <xsl:sort select="display_order/text()"/>
         <xsl:sort select="translate(id/text(),$lcletters,$ucletters)"/>
       </xsl:apply-templates>
+      <xsl:apply-templates select="blacklist"/>
+      <xsl:apply-templates select="whiteout"/>
     </xsl:copy>
   </xsl:template>
-<!-- Warn about empty groups -->
+  <xsl:template match="blacklist" priority="1">
+    <xsl:copy>
+      <xsl:apply-templates select="package">
+        <xsl:sort select="@arch"/>
+        <xsl:sort select="@name"/>
+      </xsl:apply-templates>
+    </xsl:copy>
+  </xsl:template>
+  <xsl:template match="whiteout" priority="1">
+    <xsl:copy>
+      <xsl:apply-templates select="ignoredep">
+        <xsl:sort select="@package"/>
+        <xsl:sort select="@requires"/>
+      </xsl:apply-templates>
+    </xsl:copy>
+  </xsl:template>
+  <!-- Warn about empty groups -->
   <xsl:template match="group[count(key('packages-by-group',id/text()))=0]" priority="2">
     <xsl:message>☹☹☹ Empty group <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/>!</xsl:message>
     <xsl:apply-templates select="." mode="normalize"/>
   </xsl:template>
-<!-- Warn about duplicate groups being merged -->
+  <!-- Warn about duplicate groups being merged -->
   <xsl:template match="group[generate-id(.) != generate-id(key('unique-groups',id/text())[1])]" priority="3">
     <xsl:message> ☹☹ Duplicate group <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/> will be merged.</xsl:message>
   </xsl:template>
-<!-- Warn about empty categories -->
+  <!-- Warn about empty categories -->
   <xsl:template match="category[count(key('groups-by-category',id/text()))=0]" priority="2">
     <xsl:message>☹☹☹ Empty category <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/>!</xsl:message>
     <xsl:apply-templates select="." mode="normalize"/>
   </xsl:template>
-<!-- Warn about duplicate categories being merged -->
+  <!-- Warn about duplicate categories being merged -->
   <xsl:template match="category[generate-id(.) != generate-id(key('unique-categories',id/text())[1])]" priority="3">
     <xsl:message> ☹☹ Duplicate category <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/> will be merged.</xsl:message>
   </xsl:template>
-<!-- Sort packages within a group by class then name -->
+  <!-- Sort packages within a group by class then name -->
   <xsl:template match="packagelist" priority="1">
     <xsl:copy>
       <xsl:apply-templates select="key('packages-by-group',../id/text())">
@@ -101,7 +122,7 @@
       </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
-<!-- Sort groups within a category by name -->
+  <!-- Sort groups within a category by name -->
   <xsl:template match="category/grouplist" priority="1">
     <xsl:copy>
       <xsl:apply-templates select="key('groups-by-category',../id/text())">
@@ -109,16 +130,16 @@
       </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
-<!-- Kill duplicate package entries -->
+  <!-- Kill duplicate package entries -->
   <xsl:template match="packagereq[generate-id(.) != generate-id(key('unique-package-entries',concat(../../id/text(),'/',text()))[1])]" priority="2">
     <xsl:message>☹☹☹ Ignoring duplicate reference to <xsl:value-of select="concat(@type,' package ',text())"/> in group <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/>.</xsl:message>
     <xsl:message>     ⇒ Only its first reference (<xsl:value-of select="key('unique-package-entries',concat(../../id/text(),'/',text()))[1]/@type"/> package) will be kept.</xsl:message>
   </xsl:template>
-<!-- Kill duplicate group entries -->
+  <!-- Kill duplicate group entries -->
   <xsl:template match="category/grouplist/groupid[generate-id(.) != generate-id(key('unique-group-entries',concat(../../id/text(),'/',text()))[1])]" priority="1">
     <xsl:message>  ☹ Ignoring duplicate reference to group <xsl:value-of select="text()"/> in category <xsl:value-of select="concat(../../_name/text(),' (',../../id/text(),')')"/>.</xsl:message>
   </xsl:template>
-<!-- Warn about packages referenced several times 
+  <!-- Warn about packages referenced several times
   <xsl:template match="packagereq[generate-id(.) = generate-id(key('unique-packages',text())[2])]" priority="1">
     <xsl:variable name="dupes" select="key('unique-packages',text())"/>
     <xsl:message>  ☹ Package <xsl:value-of select="text()"/> is referenced in <xsl:value-of select="count($dupes)"/> groups:</xsl:message>
