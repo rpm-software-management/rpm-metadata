@@ -240,7 +240,9 @@
   <define name="boolean">
     <choice>
       <value>true</value>
+      <value>True</value>
       <value>false</value>
+      <value>False</value>
     </choice>
   </define>
   <define name="groupname">
