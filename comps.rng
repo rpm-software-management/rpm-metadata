@@ -33,24 +33,31 @@
     <element name="group">
       <!-- Example documentation. Please add more. -->
       <a:documentation>This defines a package group.</a:documentation>
-      <ref name="id"/>
-      <element name="default" a:defaultValue="true">
-        <a:documentation>Should the group be enabled by default?</a:documentation>
-        <ref name="boolean"/>
-      </element>
-      <element name="uservisible" a:defaultValue="true">
-        <a:documentation>Should the group be visible to users?</a:documentation>
-        <ref name="boolean"/>
-      </element>
-      <optional>
-        <element name="langonly">
-          <ref name="locale"/>
-        </element>
-      </optional>
-      <optional>
-        <ref name="groupreqlist"/>
-      </optional>
-      <ref name="packagelist"/>
+      <interleave>
+       <ref name="id"/>
+       <element name="default" a:defaultValue="true">
+         <a:documentation>Should the group be enabled by default?</a:documentation>
+         <ref name="boolean"/>
+       </element>
+       <element name="uservisible" a:defaultValue="true">
+         <a:documentation>Should the group be visible to users?</a:documentation>
+         <ref name="boolean"/>
+       </element>
+       <optional>
+         <element name="display_order">
+           <ref name="positiveInteger"/>
+         </element>
+       </optional>
+       <optional>
+         <element name="langonly">
+           <ref name="locale"/>
+         </element>
+       </optional>
+       <optional>
+         <ref name="groupreqlist"/>
+       </optional>
+       <ref name="packagelist"/>
+      </interleave>
     </element>
   </define>
   <define name="groupreqlist">
