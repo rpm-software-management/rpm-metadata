@@ -111,6 +111,7 @@
   </define>
   <define name="category">
     <element name="category">
+      <interleave>
       <ref name="id"/>
       <optional>
         <element name="display_order">
@@ -118,6 +119,7 @@
         </element>
       </optional>
       <ref name="grouplist"/>
+     </interleave>
     </element>
   </define>
   <define name="grouplist">
