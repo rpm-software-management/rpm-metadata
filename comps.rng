@@ -9,7 +9,9 @@
           create grammar for comps.xml.in
           add more documentation for comps elements
 -->
-<grammar xmlns="http://relaxng.org/ns/structure/1.0" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <ref name="comps"/>
   </start>
@@ -61,6 +63,11 @@
     </element>
   </define>
   <define name="groupreqlist">
+    <a:documentation>
+      Contains a list of other groups that this group requires.
+      This element has been ignored by yum et. al. since 2005 and should
+      therefore be considered deprecated.
+    </a:documentation>
     <element name="grouplist">
       <oneOrMore>
         <ref name="groupreq"/>
@@ -69,7 +76,6 @@
   </define>
   <define name="groupreq">
     <element name="groupreq">
-      <a:documentation>Other groups that this group requires.</a:documentation>
       <ref name="groupname"/>
     </element>
   </define>
