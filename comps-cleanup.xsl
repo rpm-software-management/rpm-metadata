@@ -75,10 +75,19 @@
         <xsl:sort select="display_order/text()"/>
         <xsl:sort select="translate(id/text(),$lcletters,$ucletters)"/>
       </xsl:apply-templates>
+      <xsl:apply-templates select="langpacks"/>
       <xsl:apply-templates select="blacklist"/>
       <xsl:apply-templates select="whiteout"/>
     </xsl:copy>
   </xsl:template>
+  <xsl:template match="langpacks" priority="1">
+    <xsl:copy>
+      <xsl:apply-templates select="match">
+       <xsl:sort select="@name"/>
+       <xsl:sort select="@install"/>
+    </xsl:apply-templates>
+   </xsl:copy>
+ </xsl:template>
   <xsl:template match="blacklist" priority="1">
     <xsl:copy>
       <xsl:apply-templates select="package">
