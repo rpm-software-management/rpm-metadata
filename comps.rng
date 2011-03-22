@@ -23,12 +23,17 @@
       <zeroOrMore>
         <ref name="category"/>
       </zeroOrMore>
-      <optional>
-        <interleave><!-- We don't care what order these are in -->
+      <interleave><!-- We don't care what order these are in -->
+        <optional>
           <ref name="whiteout"/>
+        </optional>
+        <optional>
           <ref name="blacklist"/>
-        </interleave>
-      </optional>
+        </optional>
+        <optional>
+          <ref name="langpacks"/>
+        </optional>
+      </interleave>
     </element>
   </define>
   <define name="group">
@@ -181,6 +186,29 @@
         </zeroOrMore>
       </group>
     </choice>
+  </define>
+  <define name="langpacks">
+    <a:documentation>
+    The "langpacks" item is a list of package-to-langpack mappings used
+    by the yum-langpacks plugin.
+
+    An example is:
+     &lt;match name="foo" install="foo-lang-%s"&gt;
+    When the 'foo' package is installed, the 'foo-lang-(language code)' package
+    will be installed for any configured languages.
+    </a:documentation>
+    <element name="langpacks">
+      <zeroOrMore>
+        <element name="match">
+          <attribute name="name">
+            <ref name="string"/>
+          </attribute>
+          <attribute name="install">
+            <ref name="string"/>
+          </attribute>
+        </element>
+      </zeroOrMore>
+    </element>
   </define>
   <define name="blacklist">
     <a:documentation>
