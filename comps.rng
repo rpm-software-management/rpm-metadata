@@ -81,9 +81,9 @@
   </define>
   <define name="packagelist">
     <element name="packagelist">
-      <oneOrMore>
+      <zeroOrMore>
         <ref name="packagereq"/>
-      </oneOrMore>
+      </zeroOrMore>
     </element>
   </define>
   <define name="packagereq">
