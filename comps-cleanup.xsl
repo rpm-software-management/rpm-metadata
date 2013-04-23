@@ -17,6 +17,7 @@
   <xsl:strip-space elements="*"/>
   <xsl:output method="xml" indent="yes" encoding="UTF-8" doctype-system="comps.dtd" doctype-public="-//Red Hat, Inc.//DTD Comps info//EN"/>
   <xsl:key name="unique-groups" match="/comps/group" use="id/text()"/>
+  <xsl:key name="unique-environments" match="/comps/environment" use="id/text()"/>
   <xsl:key name="unique-categories" match="/comps/category" use="id/text()"/>
   <xsl:key name="packages-by-group" match="/comps/group/packagelist/packagereq" use="../../id/text()"/>
   <xsl:key name="unique-package-entries" match="/comps/group/packagelist/packagereq" use="concat(../../id/text(),'/',text())"/>
@@ -71,6 +72,10 @@
       <xsl:apply-templates select="group">
         <xsl:sort select="translate(id/text(),$lcletters,$ucletters)"/>
       </xsl:apply-templates>
+      <xsl:apply-templates select="environment">
+        <xsl:sort select="display_order/text()"/>
+        <xsl:sort select="translate(id/text(),$lcletters,$ucletters)"/>
+      </xsl:apply-templates>
       <xsl:apply-templates select="category">
         <xsl:sort select="display_order/text()"/>
         <xsl:sort select="translate(id/text(),$lcletters,$ucletters)"/>
@@ -117,6 +122,10 @@
   <xsl:template match="category[count(key('groups-by-category',id/text()))=0]" priority="2">
     <xsl:message>☹☹☹ Empty category <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/>!</xsl:message>
     <xsl:apply-templates select="." mode="normalize"/>
+  </xsl:template>
+  <!-- Warn about duplicate environments being merged -->
+  <xsl:template match="environment[generate-id(.) != generate-id(key('unique-environments',id/text())[1])]" priority="3">
+    <xsl:message> ☹☹ Duplicate environment <xsl:value-of select="concat(_name/text(),' (',id/text(),')')"/> will be merged.</xsl:message>
   </xsl:template>
   <!-- Warn about duplicate categories being merged -->
   <xsl:template match="category[generate-id(.) != generate-id(key('unique-categories',id/text())[1])]" priority="3">
