@@ -356,7 +356,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" ref="collection"/>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="collection"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
