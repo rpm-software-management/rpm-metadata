@@ -263,7 +263,7 @@
        print unique collection names
     -->
     <xsl:for-each select="/updates/update/pkglist/collection/name/text()[generate-id()=generate-id(key('collection',.)[1])]">
-     <xsl:value-of select="."/>
+     <xsl:value-of select="."/><br />
     </xsl:for-each>
    </p>
   </div>
