@@ -1,10 +1,13 @@
 <?xml encoding="UTF-8"?>
 
-<!ELEMENT comps (group+,category+)>
+<!ELEMENT comps (group+,environment+,category+,langpacks?)>
 <!ATTLIST comps xmlns CDATA #FIXED ''>
 
 <!ELEMENT group (id,name,description,default,uservisible,langonly?, packagelist)>
 <!ATTLIST group xmlns CDATA #FIXED ''>
+
+<!ELEMENT environment (id,name,description,display_order?,grouplist,optionlist)>
+<!ATTLIST environment xmlns CDATA #FIXED ''>
 
 <!ELEMENT category (id,name,description,display_order?,grouplist)>
 <!ATTLIST category xmlns CDATA #FIXED ''>
@@ -41,3 +44,6 @@
 
 <!ELEMENT description (#PCDATA)>
 <!ATTLIST description xmlns CDATA #FIXED ''>
+
+<!ELEMENT optionlist (groupid)+>
+<!ATTLIST optionlist xmlns CDATA #FIXED ''>

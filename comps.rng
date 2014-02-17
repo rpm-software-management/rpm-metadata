@@ -21,6 +21,9 @@
         <ref name="group"/>
       </oneOrMore>
       <zeroOrMore>
+        <ref name="environment"/>
+      </zeroOrMore>
+      <zeroOrMore>
         <ref name="category"/>
       </zeroOrMore>
       <interleave><!-- We don't care what order these are in -->
@@ -120,6 +123,22 @@
       <ref name="packagename"/>
     </element>
   </define>
+  <define name="environment">
+    <element name="environment">
+      <interleave>
+      <ref name="id"/>
+      <optional>
+        <element name="display_order">
+          <ref name="positiveInteger"/>
+        </element>
+      </optional>
+      <ref name="grouplist"/>
+      <optional>
+        <ref name="optionlist"/>
+      </optional>
+     </interleave>
+    </element>
+  </define>
   <define name="category">
     <element name="category">
       <interleave>
@@ -135,6 +154,13 @@
   </define>
   <define name="grouplist">
     <element name="grouplist">
+      <oneOrMore>
+        <ref name="groupid"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="optionlist">
+    <element name="optionlist">
       <oneOrMore>
         <ref name="groupid"/>
       </oneOrMore>
