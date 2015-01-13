@@ -61,21 +61,21 @@
              relevant documentation for these elements sits with
              their definition
         -->
-        <xs:element minOccurs="1" ref="id"/>
-        <xs:element minOccurs="0" ref="title"/>
-        <xs:element minOccurs="0" ref="solution"/>
-        <xs:element minOccurs="0" ref="rights"/>
-        <xs:element minOccurs="0" ref="summary"/>
-        <xs:element minOccurs="0" ref="release"/>
-        <xs:element minOccurs="1" ref="issued"/>
-        <xs:element minOccurs="0" ref="updated"/>
-        <xs:element minOccurs="0" ref="severity"/>
-        <xs:element minOccurs="0" ref="description"/>
-        <xs:element minOccurs="0" ref="references"/>
-        <xs:element minOccurs="1" ref="pkglist"/>
-        <xs:element minOccurs="0" ref="reboot_suggested"/>
-        <xs:element minOccurs="0" ref="restart_suggested"/>
-        <xs:element minOccurs="0" ref="relogin_suggested"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="id"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="title"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="solution"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="rights"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="summary"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="release"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="issued"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="updated"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="severity"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="description"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="references"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="pkglist"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="reboot_suggested"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="restart_suggested"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="relogin_suggested"/>
       </xs:all>
 
       <xs:attribute name="from" use="required">
@@ -185,28 +185,85 @@
     </xs:annotation>
   </xs:element>
 
-  <xs:element name="reboot_suggested" type="xs:boolean">
+  <xs:element name="reboot_suggested" nillable="true">
     <xs:annotation>
       <xs:documentation xml:lang="en">
         Should the system be rebooted after the update is applied?
       </xs:documentation>
     </xs:annotation>
+    <xs:simpleType>
+      <xs:union>
+        <xs:simpleType>
+          <xs:restriction base='xs:string'>
+            <xs:length value="0"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType>
+          <!-- Fedora has this, it should be 'true' so we can use xs:boolean -->
+          <xs:restriction base='xs:string'>
+            <xs:enumeration value="True"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType>
+          <xs:restriction base='xs:boolean'>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:union>
+    </xs:simpleType>
   </xs:element>
 
-  <xs:element name="relogin_suggested" type="xs:boolean">
+  <xs:element name="relogin_suggested" nillable="true">
     <xs:annotation>
       <xs:documentation xml:lang="en">
         Should the login session be restarted after the update is applied?
       </xs:documentation>
     </xs:annotation>
+    <xs:simpleType>
+      <xs:union>
+        <xs:simpleType>
+          <xs:restriction base='xs:string'>
+            <xs:length value="0"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType>
+          <!-- Fedora has this, it should be 'true' so we can use xs:boolean -->
+          <xs:restriction base='xs:string'>
+            <xs:enumeration value="True"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType>
+          <xs:restriction base='xs:boolean'>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:union>
+    </xs:simpleType>
   </xs:element>
 
-  <xs:element name="restart_suggested" type="xs:string">
+  <xs:element name="restart_suggested" nillable="true">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        Should the login session be restarted after the update is applied?
+        Should the updated service be restarted after the update is applied?
       </xs:documentation>
     </xs:annotation>
+    <xs:simpleType>
+      <xs:union>
+        <xs:simpleType>
+          <xs:restriction base='xs:string'>
+            <xs:length value="0"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType>
+          <!-- Fedora has this, it should be 'true' so we can use xs:boolean -->
+          <xs:restriction base='xs:string'>
+            <xs:enumeration value="True"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType>
+          <xs:restriction base='xs:boolean'>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:union>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="id" type="xs:string">
@@ -321,8 +378,6 @@
         <xs:simpleType>
           <xs:restriction base="xs:token">
             <xs:enumeration value="commit"/>
-            <xs:enumeration value="trac"/>
-            <xs:enumeration value="fate"/>
             <xs:enumeration value="bugzilla"/>
             <xs:enumeration value="cve"/>
             <xs:enumeration value="self"/>
