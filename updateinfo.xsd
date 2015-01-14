@@ -497,6 +497,7 @@
             <xs:enumeration value="i686"/>
             <xs:enumeration value="x86_64"/>
             <!-- arm -->
+            <xs:enumeration value="aarch64"/>
             <xs:enumeration value="armv7tnhl"/>
             <xs:enumeration value="armv7thl"/>
             <xs:enumeration value="armv7nhl"/>
@@ -514,6 +515,9 @@
             <xs:enumeration value="ppc64"/>
             <!--ia64 -->
             <xs:enumeration value="ia64"/>
+            <!--s390 -->
+            <xs:enumeration value="s390"/>
+            <xs:enumeration value="s390x"/>
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
