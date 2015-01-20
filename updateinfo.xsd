@@ -4,6 +4,9 @@
 <!--
      Written by Pat Riehecky <riehecky@fnal.gov> for Scientific Linux
 
+     If yum-security provides a valid schema, this file should be rebased
+     to follow it.
+
      This program is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
      the Free Software Foundation; either version 2 of the License, or
@@ -279,7 +282,8 @@
     <xs:annotation>
       <xs:documentation xml:lang="en">
         Please give a nice SHORT human title for this update.  Try and keep it
-        under 65 chars, it is simpler to read that way
+        under 65 chars, it is simpler to read that way due to how yum formates
+        its output within an 80 column terminal.
       </xs:documentation>
     </xs:annotation>
   </xs:element>
@@ -354,8 +358,8 @@
 
         Where can I find this documentation?
 
-        What should this documentation be titled?  Keep it under 65 char to
-         avoid linewrap
+        What should this documentation be titled?  Try to keep it under
+        65 char to avoid linewrap in an 80 column terminal.
 
         What kind of documentation is it?
          is it a commit log or branch of a source tree?*
