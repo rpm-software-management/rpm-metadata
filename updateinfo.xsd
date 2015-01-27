@@ -525,7 +525,7 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
-      <xs:attribute name="epoch" use="required" type="epochValues"/>
+      <xs:attribute name="epoch" type="epochValues"/>
       <xs:attribute name="name" use="required"/>
       <xs:attribute name="release" use="required" type="xs:string"/>
       <xs:attribute name="src" type="xs:anyURI"/>
