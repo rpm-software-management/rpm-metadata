@@ -143,6 +143,11 @@
           <ref name="boolean"/>
         </attribute>
       </optional>
+      <optional>
+        <attribute name="arch">
+          <ref name="string"/>
+        </attribute>
+      </optional>
       <ref name="packagename"/>
     </element>
   </define>
