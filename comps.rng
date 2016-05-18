@@ -154,17 +154,17 @@
   <define name="environment">
     <element name="environment">
       <interleave>
-      <ref name="id"/>
-      <optional>
-        <element name="display_order">
-          <ref name="positiveInteger"/>
-        </element>
-      </optional>
-      <ref name="grouplist"/>
-      <optional>
-        <ref name="optionlist"/>
-      </optional>
-     </interleave>
+        <ref name="id"/>
+        <optional>
+          <element name="display_order">
+            <ref name="positiveInteger"/>
+          </element>
+        </optional>
+        <ref name="grouplist"/>
+        <optional>
+          <ref name="optionlist"/>
+        </optional>
+      </interleave>
     </element>
   </define>
   <define name="category">
