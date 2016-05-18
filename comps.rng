@@ -197,6 +197,11 @@
   <define name="groupid">
     <element name="groupid">
       <ref name="string"/>
+      <optional>
+        <attribute name="default" a:defaultValue="false">
+          <ref name="boolean"/>
+        </attribute>
+      </optional>
     </element>
   </define>
   <define name="id">
