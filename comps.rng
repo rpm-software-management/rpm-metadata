@@ -84,11 +84,28 @@
       <oneOrMore>
         <ref name="groupreq"/>
       </oneOrMore>
+      <zeroOrMore>
+        <ref name="metapkg"/>
+      </zeroOrMore>
     </element>
   </define>
   <define name="groupreq">
     <element name="groupreq">
       <ref name="groupname"/>
+    </element>
+  </define>
+  <define name="metapkg">
+    <element name="metapkg">
+      <ref name="packagename"/>
+      <optional>
+        <attribute name="type">
+          <choice>
+            <value>mandatory</value>
+            <value>default</value>
+            <value>optional</value>
+          </choice>
+        </attribute>
+      </optional>
     </element>
   </define>
   <define name="packagelist">
