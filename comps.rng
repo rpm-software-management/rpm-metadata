@@ -344,7 +344,7 @@
     <data type="string"/>
   </define>
   <define name="ID">
-    <data type="ID"/>
+    <data type="string"/>
   </define>
 <!-- Should be a regexp -->
   <define name="locale">
