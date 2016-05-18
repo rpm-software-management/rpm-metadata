@@ -45,14 +45,18 @@
       <a:documentation>This defines a package group.</a:documentation>
       <interleave>
        <ref name="id"/>
-       <element name="default" a:defaultValue="true">
-         <a:documentation>Should the group be enabled by default?</a:documentation>
-         <ref name="boolean"/>
-       </element>
-       <element name="uservisible" a:defaultValue="true">
-         <a:documentation>Should the group be visible to users?</a:documentation>
-         <ref name="boolean"/>
-       </element>
+       <optional>
+         <element name="default" a:defaultValue="true">
+           <a:documentation>Should the group be enabled by default?</a:documentation>
+           <ref name="boolean"/>
+         </element>
+       </optional>
+       <optional>
+         <element name="uservisible" a:defaultValue="true">
+           <a:documentation>Should the group be visible to users?</a:documentation>
+           <ref name="boolean"/>
+         </element>
+       </optional>
        <optional>
          <element name="display_order">
            <ref name="positiveInteger"/>
