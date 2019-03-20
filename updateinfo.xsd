@@ -502,6 +502,7 @@
           </xs:documentation>
         </xs:annotation>
         <xs:simpleType>
+          <!-- This list should be synced up with rpm/macros.in -->
           <xs:restriction base="xs:token">
             <!-- any system -->
             <xs:enumeration value="noarch"/>
