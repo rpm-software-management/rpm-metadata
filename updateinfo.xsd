@@ -3,6 +3,8 @@
 
 <!--
      Written by Pat Riehecky <riehecky@fnal.gov> for Scientific Linux
+     Copyright (2019).  Fermi Research Alliance, LLC.
+
 
      If dnf/yum-security provides a valid schema, this file should be rebased
      to follow it.
@@ -82,84 +84,89 @@
         <xs:element minOccurs="0" maxOccurs="1" ref="relogin_suggested"/>
       </xs:all>
 
-      <xs:attribute name="from" use="required">
-        <xs:annotation>
-          <xs:documentation xml:lang="en">
-            Identifier for who is issuing the update.
-            Can be an email address, name, or something else
-            so long as it assigns responsibility.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
+      <xs:attributeGroup ref="update.attributes" />
 
-      <xs:attribute name="status" use="required">
-        <xs:annotation>
-          <xs:documentation xml:lang="en">
-            There are a few ways of describing the status of this update.
-
-            - Is it stable?
-            - Is it in testing?
-            - Is it a prerelease package?
-            - Is it the final version of this, after it went through testing?
-
-            Usage should be consistant, so pick a method and stick with it.
-          </xs:documentation>
-        </xs:annotation>
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="stable"/>
-            <xs:enumeration value="prerelease"/>
-            <xs:enumeration value="testing"/>
-            <xs:enumeration value="final"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-
-      <xs:attribute name="type" use="required">
-        <xs:annotation>
-          <xs:documentation xml:lang="en">
-            What sort of update is this?
-
-             Is it a recommended update?
-             Is it an optional update?
-             Is it a feature change?
-             Is it an enhancement to an existing package?
-             Is it a bugfix?
-             Is it a security update?
-             Is it a new package you've never had before?
-
-            PackageKit recognizes all of these values.
-
-            Please don't use all of these pick a subset and stick with them.
-
-            The suggested set is as follows:
-                   enhancement, bugfix, security, and newpackage
-          </xs:documentation>
-        </xs:annotation>
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="recommended"/>
-            <xs:enumeration value="optional"/>
-            <xs:enumeration value="feature"/>
-            <xs:enumeration value="enhancement"/>
-            <xs:enumeration value="bugfix"/>
-            <xs:enumeration value="security"/>
-            <xs:enumeration value="newpackage"/>
-            <xs:enumeration value="errata"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-
-      <xs:attribute name="version" use="required" type="xs:string">
-        <xs:annotation>
-          <xs:documentation xml:lang="en">
-            Right now only version '1', '1.4', and '2.0' are in the wild.
-            The differences between them are as yet unknown.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
     </xs:complexType>
   </xs:element>
+
+  <xs:attributeGroup name="update.attributes">
+    <xs:attribute name="from" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Identifier for who is issuing the update.
+          Can be an email address, name, or something else
+          so long as it assigns responsibility.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="status" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          There are a few ways of describing the status of this update.
+
+          - Is it stable?
+          - Is it in testing?
+          - Is it a prerelease package?
+          - Is it the final version of this, after it went through testing?
+
+          Usage should be consistant, so pick a method and stick with it.
+        </xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="stable"/>
+          <xs:enumeration value="prerelease"/>
+          <xs:enumeration value="testing"/>
+          <xs:enumeration value="final"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+
+    <xs:attribute name="type" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          What sort of update is this?
+
+           Is it a recommended update?
+           Is it an optional update?
+           Is it a feature change?
+           Is it an enhancement to an existing package?
+           Is it a bugfix?
+           Is it a security update?
+           Is it a new package you've never had before?
+
+          PackageKit recognizes all of these values.
+
+          Please don't use all of these pick a subset and stick with them.
+
+          The suggested set is as follows:
+                 enhancement, bugfix, security, and newpackage
+        </xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="recommended"/>
+          <xs:enumeration value="optional"/>
+          <xs:enumeration value="feature"/>
+          <xs:enumeration value="enhancement"/>
+          <xs:enumeration value="bugfix"/>
+          <xs:enumeration value="security"/>
+          <xs:enumeration value="newpackage"/>
+          <xs:enumeration value="errata"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+
+    <xs:attribute name="version" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Right now only version '1', '1.4', and '2.0' are in the wild.
+          The differences between them are as yet unknown.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
 
   <xs:element name="solution" type="xs:string">
     <xs:annotation>
@@ -455,6 +462,7 @@
       <xs:attribute name="short" type="xs:string"/>
     </xs:complexType>
   </xs:element>
+
   <xs:element name="name" type="xs:string"/>
 
   <xs:simpleType name="epochValues">
