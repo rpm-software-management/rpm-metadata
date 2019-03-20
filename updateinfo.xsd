@@ -31,6 +31,7 @@
   This xsd was built from public versions of updateinfo.xml.  In particular the
   Fedora and OpenSUSE files were used as a reference.  They were listed
   as version=1 and version=1.4 so consider this a unity of them both.
+  With Fedora 29 there is now a version=2.0 from Bodhi.
  </xs:documentation>
 </xs:annotation>
 
@@ -127,7 +128,10 @@
              Is it a security update?
              Is it a new package you've never had before?
 
+            PackageKit recognizes all of these values.
+
             Please don't use all of these pick a subset and stick with them.
+
             The suggested set is as follows:
                    enhancement, bugfix, security, and newpackage
           </xs:documentation>
@@ -149,7 +153,7 @@
       <xs:attribute name="version" use="required" type="xs:string">
         <xs:annotation>
           <xs:documentation xml:lang="en">
-            Right now only version '1' and '1.4' are in the wild.
+            Right now only version '1', '1.4', and 2.0 are in the wild.
             The differences between them are as yet unknown.
           </xs:documentation>
         </xs:annotation>
@@ -182,8 +186,8 @@
       <xs:documentation xml:lang="en">
         The 'title' is supposed to be very short.  The 'description' should
         leave nothing out.  This is the ground between.  Think of it like an
-        abstract to a research paper.  What do I need to know that you can't
-        fit within the title.
+        abstract to a research paper.
+        What do I need to know that you can't fit within the title?
       </xs:documentation>
     </xs:annotation>
   </xs:element>
@@ -281,9 +285,8 @@
   <xs:element name="title" type="xs:string">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        Please give a nice SHORT human title for this update.  Try and keep it
-        under 65 chars, it is simpler to read that way due to how yum formates
-        its output within an 80 column terminal.
+        Please give a nice SHORT human title for this update.
+        If you keep it under 65 chars, it looks nice in an 80 column terminal.
       </xs:documentation>
     </xs:annotation>
   </xs:element>
@@ -302,14 +305,12 @@
   <xs:element name="severity">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        For security updates only.  Please rate the severity of the problem.
-
-        A value of '' is in the wild, but DON'T DO THAT!
+        Please rate the severity of the problem.
       </xs:documentation>
     </xs:annotation>
     <xs:simpleType>
       <xs:restriction base="xs:string">
-        <xs:pattern value="[C|c]ritical|[I|i]mportant|[M|m]oderate|[L|l]ow"/>
+        <xs:pattern value="[C|c]ritical|[I|i]mportant|[M|m]oderate|[L|l]ow|[N|n]one"/>
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
