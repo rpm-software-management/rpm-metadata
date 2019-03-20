@@ -4,7 +4,7 @@
 <!--
      Written by Pat Riehecky <riehecky@fnal.gov> for Scientific Linux
 
-     If yum-security provides a valid schema, this file should be rebased
+     If dnf/yum-security provides a valid schema, this file should be rebased
      to follow it.
 
      This program is free software; you can redistribute it and/or modify
@@ -153,7 +153,7 @@
       <xs:attribute name="version" use="required" type="xs:string">
         <xs:annotation>
           <xs:documentation xml:lang="en">
-            Right now only version '1', '1.4', and 2.0 are in the wild.
+            Right now only version '1', '1.4', and '2.0' are in the wild.
             The differences between them are as yet unknown.
           </xs:documentation>
         </xs:annotation>
@@ -294,10 +294,14 @@
   <xs:element name="release" type="xs:string">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        What distribution is this released for?  You can be specific or general
-        Scientific Linux 6.3 or Scientific Linux 6 or even Scientific Linux.
+        What distribution is this released for?  You can be specific or general:
+         - Scientific Linux 7.3 Atomic
+         - Scientific Linux 7.3
+         - Scientific Linux 7 
+         - Scientific Linux
 
-        But once you pick one stick with it.
+        Whatever you pick, you should have a reason keep using it for
+        any consumer of the update information.
       </xs:documentation>
     </xs:annotation>
   </xs:element>
@@ -319,6 +323,9 @@
     <xs:annotation>
       <xs:documentation xml:lang="en">
         When was this update released?
+
+        I'd love to make this either xs:dateTime or xs:date....
+        Alas, Suse is epoch time and Fedora is not xs:dateTime
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
@@ -329,9 +336,9 @@
   <xs:element name="updated">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        If you had to modify the update, but it is still the same source code,
-        you can indicate that you've made a change here.  This is for making
-        corrections to description errors and such.
+        If you had to modify the update text, but it is still the same source code,
+        you can indicate that you've made a change here.
+        This is for making corrections to description errors and such.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
@@ -364,7 +371,7 @@
 
         What kind of documentation is it?
          is it a commit log or branch of a source tree?*
-         a bug in trac? *
+         a bug in github? *
          a bug in fate? (OpenSuse)*
          a bug in bugzilla?
          a cve?
@@ -397,8 +404,10 @@
   <xs:element name="description">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        Describe the update.  We can find out what the package is for elsewhere,
-        why is this an update to that package?
+        Describe the update.  The package's description says why
+        you might install this rpm.
+
+        Why should you apply this update?  What does it contain?
       </xs:documentation>
     </xs:annotation>
     <xs:simpleType>
@@ -471,6 +480,9 @@
       <xs:documentation xml:lang="en">
         Each update must feature a package or else we are not updating a package
         this lists what we must have and what we can know about a package.
+
+        Your package provider will probably use the attributes of this to
+        determine if the package is an update to your installed packages.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
@@ -566,6 +578,13 @@
         </xs:restriction>
       </xs:simpleType>
       <xs:simpleType>
+        <!-- sha384 -->
+        <xs:restriction base="xs:string">
+          <xs:length value="96"/>
+          <xs:pattern value="[0-9a-fA-F]*"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
         <!-- sha512 -->
         <xs:restriction base="xs:string">
           <xs:length value="128"/>
@@ -591,6 +610,7 @@
               <xs:enumeration value="sha"/>
               <xs:enumeration value="sha1"/>
               <xs:enumeration value="sha256"/>
+              <xs:enumeration value="sha384"/>
               <xs:enumeration value="sha512"/>
             </xs:restriction>
           </xs:simpleType>
