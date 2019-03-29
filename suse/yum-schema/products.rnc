@@ -1,0 +1,15 @@
+include "common-inc.rnc"
+
+start = element products {
+  element product {
+    attribute id { text }?,
+    attribute schemeversion { "0" }?,
+    element name { text },
+    element version { private.evr },
+    element arch { private.archenum },
+    element vendor { text },
+    element summary { text },
+    element description { text }
+  }+
+}
+

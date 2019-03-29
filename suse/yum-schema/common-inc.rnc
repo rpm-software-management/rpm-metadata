@@ -1,0 +1,72 @@
+# private is not an XML namespace, just a holder for reusable
+#   attribute/element sets
+
+private.positive = xsd:positiveInteger { pattern="[1-9][0-9]*" }
+
+private.nonnegative = "0" | private.positive
+
+# Unix timestamp (seconds since epoch)
+# For our purposes, this is always positive
+private.unixts = private.positive
+
+private.size = private.nonnegative
+
+private.checksum =
+  (attribute type { "md5" }, xsd:string { length="32" pattern="[0-9a-f]*" }) |
+  (attribute type { "sha" }, xsd:string { length="40" pattern="[0-9a-f]*" }) |
+  (attribute type { "sha256" }, xsd:string { length="64" pattern="[0-9a-f]*" }) |
+  (attribute type { "sha" }, xsd:string { length="32" pattern="[0-9a-f]*" })
+# The last option is totally broken, but is in the wild!!! :(
+
+private.evr =
+  attribute epoch { private.nonnegative }?,
+  attribute ver { text },
+  attribute rel { text }?
+
+private.localizedtext = attribute lang { "en" | "de" }, text
+
+private.archenum = "noarch"
+            | "i386"
+            | "i486"
+            | "i586"
+            | "i686"
+            | "athlon"
+            | "x86_64"
+            | "pentium3"
+            | "pentium4"
+            | "s390"
+            | "s390x"
+            | "ppc"
+            | "ppc64"
+            | "ia64"
+            | "alphaev67"
+            | "alphaev6"
+            | "alphapca56"
+            | "alphaev56"
+            | "alphaev5"
+            | "alpha"
+            | "sparc64v"
+            | "sparcv9v"
+            | "sparc64"
+            | "sparcv9"
+            | "sparcv8"
+            | "sparc"
+            | "aarch64"
+            | "armv7tnhl"
+            | "armv7thl"
+            | "armv7nhl"
+            | "armv7hl"
+            | "armv7l"
+            | "armv6l"
+            | "armv5tejl"
+            | "armv5tel"
+            | "armv5l"
+            | "armv4tl"
+            | "armv4l"
+            | "armv3l"
+            | "sh3"
+            | "sh4"
+            | "sh4a"
+            | "m68k"
+            | "src"
+

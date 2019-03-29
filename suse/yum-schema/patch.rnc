@@ -1,0 +1,146 @@
+default namespace = "http://novell.com/package/metadata/suse/patch"
+namespace yum = "http://linux.duke.edu/metadata/common"
+namespace suse = "http://novell.com/package/metadata/suse/common"
+
+include "rpm-inc.rnc"
+
+yum.name = element yum:name { text }
+
+yum.arch = element yum:arch { private.archenum }
+
+yum.version =  element yum:version {
+  private.evr
+}
+
+suse.freshens = element suse:freshens {
+  element suse:entry {
+    attribute kind { "package" },
+    attribute name { text }
+  }+
+}
+
+group.deps = rpm.requires?, rpm.obsoletes?, rpm.provides?, rpm.recommends?, rpm.supplements?, rpm.conflicts?, suse.freshens?
+
+patch.location = element location {
+  attribute href { xsd:anyURI }
+}
+
+patch.checksum = element checksum {
+  private.checksum
+}
+ 
+patch.time = element time {
+  attribute file { private.unixts },
+  attribute build { private.unixts }
+}
+
+patch.size = element size {
+  attribute package { private.size },
+  attribute archive { private.size }
+}
+
+start = element patch {
+  attribute patchid { text },
+  attribute timestamp { private.unixts },
+  attribute engine { "1.0" },
+  yum.name,
+  element summary {
+    private.localizedtext
+  }+,
+  element description {
+    private.localizedtext
+  }+,
+  element license-to-confirm { 
+    private.localizedtext
+  }?,
+  yum.version,
+  group.deps,
+  element reboot-needed { empty }?,
+  element package-manager { empty }?,
+  element category { "security" | "recommended" | "optional" },
+  # This is in two places (with slightly different definiton)
+  # because that is what is seen in the wild
+  element license-to-confirm { 
+    text
+  }?,
+  element atoms {
+    element message {
+      yum.name,
+      yum.version,
+      element text { 
+        private.localizedtext
+      },
+      group.deps
+    }?,
+    element yum:package {
+      attribute type { "rpm" },
+      yum.name,
+      yum.arch,
+      yum.version,
+      element yum:checksum {
+        attribute pkgid  { "YES" },
+        private.checksum
+      },
+      element yum:time {
+        attribute file { private.unixts },
+        attribute build { private.unixts }
+      },
+      element yum:size {
+        attribute package { private.size },
+        attribute installed { private.size },
+        attribute archive { xsd:nonNegativeInteger }
+      },
+      element yum:location {
+        attribute href { xsd:anyURI }
+      },
+      element yum:format {
+        group.deps
+      },
+      element pkgfiles {
+        element patchrpm {
+          patch.location,
+          patch.checksum,
+          patch.time,
+          patch.size,
+          element base-version {
+            private.evr
+          }+
+        }?,
+        element deltarpm {
+          patch.location,
+          patch.checksum,
+          patch.time,
+          patch.size,
+          element base-version {
+            private.evr,
+            attribute md5sum { xsd:string { length="32" pattern="[0-9a-f]*" } },
+            attribute buildtime { private.unixts },
+            attribute sequence_info { text }
+          }
+        }*
+      }
+    }*,
+    element message {
+      yum.name,
+      yum.version,
+      element text { 
+        private.localizedtext
+      },
+      group.deps
+    }?,
+    element script {
+      yum.name,
+      yum.version,
+      # Script can either be remote (do-location and do-checksum) 
+      # or inline (do), but not both
+      ((element do-location {
+        attribute href { xsd:anyURI }
+      },
+      element do-checksum {
+        private.checksum
+      }) | element do { text }),
+      group.deps
+    }?
+  }?
+}
+

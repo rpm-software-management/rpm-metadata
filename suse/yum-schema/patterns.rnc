@@ -1,0 +1,30 @@
+namespace suse = "http://novell.com/package/metadata/suse/pattern"
+namespace rpm = "http://linux.duke.edu/metadata/rpm"
+
+include "rpm-inc.rnc"
+
+suse.uservisible = element suse:uservisible { empty }
+
+suse.category = element suse:category { private.localizedtext } 
+
+suse.plaincat = element suse:category { text }
+
+start = element patterns {
+  # seen missing in the wild
+  attribute count { xsd:nonNegativeInteger }?,
+  element suse:pattern {
+    element suse:name { text },
+    element suse:arch { private.archenum }?,
+    element suse:version { private.evr }?,
+    element suse:summary { text },
+    element suse:description { text }?,
+    ((suse.uservisible, suse.category?) | (suse.plaincat, suse.uservisible?)),
+    rpm.provides?,
+    element rpm:freshens {
+      rpm.entry+
+    }?,
+    rpm.suggests?,
+    rpm.requires?,
+    rpm.recommends?
+  }+
+}

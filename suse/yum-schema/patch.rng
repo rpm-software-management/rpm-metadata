@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://novell.com/package/metadata/suse/patch" xmlns:yum="http://linux.duke.edu/metadata/common" xmlns:suse="http://novell.com/package/metadata/suse/common" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="rpm-inc.rng"/>
+  <define name="yum.name">
+    <element name="yum:name">
+      <text/>
+    </element>
+  </define>
+  <define name="yum.arch">
+    <element name="yum:arch">
+      <ref name="private.archenum"/>
+    </element>
+  </define>
+  <define name="yum.version">
+    <element name="yum:version">
+      <ref name="private.evr"/>
+    </element>
+  </define>
+  <define name="suse.freshens">
+    <element name="suse:freshens">
+      <oneOrMore>
+        <element name="suse:entry">
+          <attribute name="kind">
+            <value>package</value>
+          </attribute>
+          <attribute name="name"/>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="group.deps">
+    <optional>
+      <ref name="rpm.requires"/>
+    </optional>
+    <optional>
+      <ref name="rpm.obsoletes"/>
+    </optional>
+    <optional>
+      <ref name="rpm.provides"/>
+    </optional>
+    <optional>
+      <ref name="rpm.recommends"/>
+    </optional>
+    <optional>
+      <ref name="rpm.supplements"/>
+    </optional>
+    <optional>
+      <ref name="rpm.conflicts"/>
+    </optional>
+    <optional>
+      <ref name="suse.freshens"/>
+    </optional>
+  </define>
+  <define name="patch.location">
+    <element name="location">
+      <attribute name="href">
+        <data type="anyURI"/>
+      </attribute>
+    </element>
+  </define>
+  <define name="patch.checksum">
+    <element name="checksum">
+      <ref name="private.checksum"/>
+    </element>
+  </define>
+  <define name="patch.time">
+    <element name="time">
+      <attribute name="file">
+        <ref name="private.unixts"/>
+      </attribute>
+      <attribute name="build">
+        <ref name="private.unixts"/>
+      </attribute>
+    </element>
+  </define>
+  <define name="patch.size">
+    <element name="size">
+      <attribute name="package">
+        <ref name="private.size"/>
+      </attribute>
+      <attribute name="archive">
+        <ref name="private.size"/>
+      </attribute>
+    </element>
+  </define>
+  <start>
+    <element name="patch">
+      <attribute name="patchid"/>
+      <attribute name="timestamp">
+        <ref name="private.unixts"/>
+      </attribute>
+      <attribute name="engine">
+        <value>1.0</value>
+      </attribute>
+      <ref name="yum.name"/>
+      <oneOrMore>
+        <element name="summary">
+          <ref name="private.localizedtext"/>
+        </element>
+      </oneOrMore>
+      <oneOrMore>
+        <element name="description">
+          <ref name="private.localizedtext"/>
+        </element>
+      </oneOrMore>
+      <optional>
+        <element name="license-to-confirm">
+          <ref name="private.localizedtext"/>
+        </element>
+      </optional>
+      <ref name="yum.version"/>
+      <ref name="group.deps"/>
+      <optional>
+        <element name="reboot-needed">
+          <empty/>
+        </element>
+      </optional>
+      <optional>
+        <element name="package-manager">
+          <empty/>
+        </element>
+      </optional>
+      <element name="category">
+        <choice>
+          <value>security</value>
+          <value>recommended</value>
+          <value>optional</value>
+        </choice>
+      </element>
+      <optional>
+        <!--
+          This is in two places (with slightly different definiton)
+          because that is what is seen in the wild
+        -->
+        <element name="license-to-confirm">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="atoms">
+          <optional>
+            <element name="message">
+              <ref name="yum.name"/>
+              <ref name="yum.version"/>
+              <element name="text">
+                <ref name="private.localizedtext"/>
+              </element>
+              <ref name="group.deps"/>
+            </element>
+          </optional>
+          <zeroOrMore>
+            <element name="yum:package">
+              <attribute name="type">
+                <value>rpm</value>
+              </attribute>
+              <ref name="yum.name"/>
+              <ref name="yum.arch"/>
+              <ref name="yum.version"/>
+              <element name="yum:checksum">
+                <attribute name="pkgid">
+                  <value>YES</value>
+                </attribute>
+                <ref name="private.checksum"/>
+              </element>
+              <element name="yum:time">
+                <attribute name="file">
+                  <ref name="private.unixts"/>
+                </attribute>
+                <attribute name="build">
+                  <ref name="private.unixts"/>
+                </attribute>
+              </element>
+              <element name="yum:size">
+                <attribute name="package">
+                  <ref name="private.size"/>
+                </attribute>
+                <attribute name="installed">
+                  <ref name="private.size"/>
+                </attribute>
+                <attribute name="archive">
+                  <data type="nonNegativeInteger"/>
+                </attribute>
+              </element>
+              <element name="yum:location">
+                <attribute name="href">
+                  <data type="anyURI"/>
+                </attribute>
+              </element>
+              <element name="yum:format">
+                <ref name="group.deps"/>
+              </element>
+              <element name="pkgfiles">
+                <optional>
+                  <element name="patchrpm">
+                    <ref name="patch.location"/>
+                    <ref name="patch.checksum"/>
+                    <ref name="patch.time"/>
+                    <ref name="patch.size"/>
+                    <oneOrMore>
+                      <element name="base-version">
+                        <ref name="private.evr"/>
+                      </element>
+                    </oneOrMore>
+                  </element>
+                </optional>
+                <zeroOrMore>
+                  <element name="deltarpm">
+                    <ref name="patch.location"/>
+                    <ref name="patch.checksum"/>
+                    <ref name="patch.time"/>
+                    <ref name="patch.size"/>
+                    <element name="base-version">
+                      <ref name="private.evr"/>
+                      <attribute name="md5sum">
+                        <data type="string">
+                          <param name="length">32</param>
+                          <param name="pattern">[0-9a-f]*</param>
+                        </data>
+                      </attribute>
+                      <attribute name="buildtime">
+                        <ref name="private.unixts"/>
+                      </attribute>
+                      <attribute name="sequence_info"/>
+                    </element>
+                  </element>
+                </zeroOrMore>
+              </element>
+            </element>
+          </zeroOrMore>
+          <optional>
+            <element name="message">
+              <ref name="yum.name"/>
+              <ref name="yum.version"/>
+              <element name="text">
+                <ref name="private.localizedtext"/>
+              </element>
+              <ref name="group.deps"/>
+            </element>
+          </optional>
+          <optional>
+            <element name="script">
+              <ref name="yum.name"/>
+              <ref name="yum.version"/>
+              <!--
+                Script can either be remote (do-location and do-checksum) 
+                or inline (do), but not both
+              -->
+              <choice>
+                <group>
+                  <element name="do-location">
+                    <attribute name="href">
+                      <data type="anyURI"/>
+                    </attribute>
+                  </element>
+                  <element name="do-checksum">
+                    <ref name="private.checksum"/>
+                  </element>
+                </group>
+                <element name="do">
+                  <text/>
+                </element>
+              </choice>
+              <ref name="group.deps"/>
+            </element>
+          </optional>
+        </element>
+      </optional>
+    </element>
+  </start>
+</grammar>

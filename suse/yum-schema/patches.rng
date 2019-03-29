@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://novell.com/package/metadata/suse/patches" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="common-inc.rng"/>
+  <start>
+    <element name="patches">
+      <zeroOrMore>
+        <element name="patch">
+          <attribute name="id"/>
+          <element name="checksum">
+            <ref name="private.checksum"/>
+          </element>
+          <element name="location">
+            <attribute name="href">
+              <data type="anyURI"/>
+            </attribute>
+          </element>
+          <optional>
+            <element name="category">
+              <choice>
+                <value>recommended</value>
+                <value>security</value>
+                <value>optional</value>
+              </choice>
+            </element>
+          </optional>
+        </element>
+      </zeroOrMore>
+    </element>
+  </start>
+</grammar>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://linux.duke.edu/metadata/other" xmlns="http://relaxng.org/ns/structure/1.0">
+  <include href="common-inc.rng"/>
+  <start>
+    <element name="otherdata">
+      <attribute name="packages">
+        <ref name="private.nonnegative"/>
+      </attribute>
+      <zeroOrMore>
+        <element name="package">
+          <attribute name="pkgid"/>
+          <attribute name="name"/>
+          <attribute name="arch">
+            <ref name="private.archenum"/>
+          </attribute>
+          <element name="version">
+            <ref name="private.evr"/>
+          </element>
+          <zeroOrMore>
+            <element name="changelog">
+              <attribute name="author"/>
+              <attribute name="date">
+                <ref name="private.unixts"/>
+              </attribute>
+              <text/>
+            </element>
+          </zeroOrMore>
+        </element>
+      </zeroOrMore>
+    </element>
+  </start>
+</grammar>

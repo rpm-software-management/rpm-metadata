@@ -1,0 +1,29 @@
+default namespace = "http://linux.duke.edu/metadata/repo"
+
+include "common-inc.rnc"
+
+repomd.location = element location {
+  attribute href { xsd:anyURI }
+}
+repomd.meta = element checksum {
+  private.checksum 
+},
+# Oddity in the wild: a timestamp wiht a decimal
+element timestamp { private.unixts | xsd:decimal },
+element size { private.positive }?,
+element open-size { private.positive }?,
+element open-checksum {
+  private.checksum
+}
+
+
+start = element repomd {
+  element revision { private.unixts }?,
+  element tags {
+    element repo { xsd:anyURI }
+  }?,
+  element data {
+    attribute type { "deltainfo" | "filelists" | "other" | "primary" | "susedata" | "suseinfo" | "updateinfo" | "patches" | "products" | "product" | "patterns" | "pattern" },
+    ((repomd.meta, repomd.location) | (repomd.location, repomd.meta))
+  }*
+}

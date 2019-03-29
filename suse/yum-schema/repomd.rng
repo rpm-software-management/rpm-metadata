@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://linux.duke.edu/metadata/repo" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="common-inc.rng"/>
+  <define name="repomd.location">
+    <element name="location">
+      <attribute name="href">
+        <data type="anyURI"/>
+      </attribute>
+    </element>
+  </define>
+  <define name="repomd.meta">
+    <element name="checksum">
+      <ref name="private.checksum"/>
+    </element>
+    <!-- Oddity in the wild: a timestamp wiht a decimal -->
+    <element name="timestamp">
+      <choice>
+        <ref name="private.unixts"/>
+        <data type="decimal"/>
+      </choice>
+    </element>
+    <optional>
+      <element name="size">
+        <ref name="private.positive"/>
+      </element>
+    </optional>
+    <optional>
+      <element name="open-size">
+        <ref name="private.positive"/>
+      </element>
+    </optional>
+    <element name="open-checksum">
+      <ref name="private.checksum"/>
+    </element>
+  </define>
+  <start>
+    <element name="repomd">
+      <optional>
+        <element name="revision">
+          <ref name="private.unixts"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="tags">
+          <element name="repo">
+            <data type="anyURI"/>
+          </element>
+        </element>
+      </optional>
+      <zeroOrMore>
+        <element name="data">
+          <attribute name="type">
+            <choice>
+              <value>deltainfo</value>
+              <value>filelists</value>
+              <value>other</value>
+              <value>primary</value>
+              <value>susedata</value>
+              <value>suseinfo</value>
+              <value>updateinfo</value>
+              <value>patches</value>
+              <value>products</value>
+              <value>product</value>
+              <value>patterns</value>
+              <value>pattern</value>
+            </choice>
+          </attribute>
+          <choice>
+            <group>
+              <ref name="repomd.meta"/>
+              <ref name="repomd.location"/>
+            </group>
+            <group>
+              <ref name="repomd.location"/>
+              <ref name="repomd.meta"/>
+            </group>
+          </choice>
+        </element>
+      </zeroOrMore>
+    </element>
+  </start>
+</grammar>

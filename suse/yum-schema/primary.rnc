@@ -1,0 +1,88 @@
+default namespace = "http://linux.duke.edu/metadata/common"
+namespace rpm = "http://linux.duke.edu/metadata/rpm"
+namespace suse = "http://novell.com/package/metadata/suse/common"
+
+include "rpm-inc.rnc"
+
+yum.name = element name { text }
+
+yum.arch = element arch { private.archenum }
+
+yum.version =  element version {
+  private.evr
+}
+
+group.deps = rpm.provides?, rpm.requires?, rpm.conflicts?, 
+             rpm.obsoletes?, rpm.suggests?, rpm.recommends?, 
+             rpm.supplements?, rpm.enhances?
+
+group.deps1 = rpm.provides?, rpm.requires?, rpm.conflicts?, 
+              rpm.obsoletes?, rpm.suggests?, rpm.enhances?, rpm.recommends?, 
+              rpm.supplements?
+
+
+group.deps2 = rpm.provides?, rpm.conflicts?, rpm.obsoletes?, rpm.enhances?, 
+              rpm.supplements?, rpm.suggests?, rpm.recommends?,
+              rpm.requires?
+
+yum.location = element location {
+  attribute href { xsd:anyURI }
+}
+
+yum.checksum = element checksum {
+  attribute pkgid { "YES" },
+  private.checksum
+}
+ 
+yum.time = element time {
+  attribute file { private.unixts },
+  attribute build { private.unixts }
+}
+
+yum.size = element size {
+  attribute package { private.size },
+  # Found this blank in the wild
+  attribute archive { private.size | "" },
+  attribute installed { private.size }
+}
+
+start = element metadata {
+  attribute packages { private.nonnegative },
+  element package {
+    attribute type { "rpm" },
+    yum.name,
+    yum.arch,
+    yum.version,
+    yum.checksum,
+    # Found unlocalized in the wild
+    element summary { private.localizedtext | text },
+    element description { private.localizedtext | text },
+    element packager { text },
+    # 10-SP1 stuff has a broken URL in the wild
+    element url { xsd:anyURI | text },
+    yum.time,
+    yum.size,
+    yum.location,
+    element format {
+      element rpm:license { text },
+      element rpm:vendor { text },
+      element rpm:group { text },
+      element rpm:buildhost { text },
+      # Two different options seen in the wild
+      # one omits the element, the other leaves the value empty
+      element rpm:sourcerpm { text | empty }?,
+      element rpm:header-range {
+        attribute start { private.positive },
+        attribute end { private.positive }
+      },
+      # any of these orders is valid, all are in use
+      (group.deps | group.deps1 | group.deps2),
+      element file { 
+        attribute type { "dir" | "ghost" }?,
+        text 
+      }*
+    },
+    element suse:license-to-confirm { text }?
+  }*
+}
+
