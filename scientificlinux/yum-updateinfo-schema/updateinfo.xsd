@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+<!--
+     Written by Pat Riehecky <riehecky@fnal.gov> for Scientific Linux
+     Copyright (2019).  Fermi Research Alliance, LLC.
+
+
+     If dnf/yum-security provides a valid schema, this file should be rebased
+     to follow it.
+
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; either version 2 of the License, or
+     (at your option) any later version.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License
+     along with this program; if not, write to the Free Software
+     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+-->
+
+<xs:annotation>
+ <xs:documentation xml:lang="en">
+  This xsd defines the values seen in the wild for the yum updateinfo.xml file
+  It restricts the entries to things witnessed to try and keep a limited
+  query set.
+
+  This xsd was built from public versions of updateinfo.xml.  In particular the
+  Fedora and OpenSUSE files were used as a reference.  They were listed
+  as version=1 and version=1.4 so consider this a unity of them both.
+  With Fedora 29 there is now a version=2.0 from Bodhi.
+ </xs:documentation>
+</xs:annotation>
+
+  <xs:element name="updates">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        All updates are children of this tag, but remember all
+        'id' values must be unique!
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="update"/>
+      </xs:sequence>
+    </xs:complexType>
+    <xs:unique name="UniqueID">
+      <xs:selector xpath="update"/>
+      <xs:field xpath="id"/>
+    </xs:unique>
+  </xs:element>
+
+  <xs:element name="update">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Each update sits within this tag level
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <!--
+             relevant documentation for these elements sits with
+             their definition
+        -->
+        <xs:element minOccurs="1" maxOccurs="1" ref="id"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="title"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="solution"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="rights"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="summary"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="release"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="issued"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="updated"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="severity"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="description"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="references"/>
+        <xs:element minOccurs="1" maxOccurs="1" ref="pkglist"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="reboot_suggested"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="restart_suggested"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="relogin_suggested"/>
+      </xs:all>
+
+      <xs:attributeGroup ref="update.attributes" />
+
+    </xs:complexType>
+  </xs:element>
+
+  <xs:attributeGroup name="update.attributes">
+    <xs:attribute name="from" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Identifier for who is issuing the update.
+          Can be an email address, name, or something else
+          so long as it assigns responsibility.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="status" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          There are a few ways of describing the status of this update.
+
+          - Is it stable?
+          - Is it in testing?
+          - Is it a prerelease package?
+          - Is it the final version of this, after it went through testing?
+
+          Usage should be consistant, so pick a method and stick with it.
+        </xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="stable"/>
+          <xs:enumeration value="prerelease"/>
+          <xs:enumeration value="testing"/>
+          <xs:enumeration value="final"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+
+    <xs:attribute name="type" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          What sort of update is this?
+
+           Is it a recommended update?
+           Is it an optional update?
+           Is it a feature change?
+           Is it an enhancement to an existing package?
+           Is it a bugfix?
+           Is it a security update?
+           Is it a new package you've never had before?
+
+          PackageKit recognizes all of these values.
+
+          Please don't use all of these pick a subset and stick with them.
+
+          The suggested set is as follows:
+                 enhancement, bugfix, security, and newpackage
+        </xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="recommended"/>
+          <xs:enumeration value="optional"/>
+          <xs:enumeration value="feature"/>
+          <xs:enumeration value="enhancement"/>
+          <xs:enumeration value="bugfix"/>
+          <xs:enumeration value="security"/>
+          <xs:enumeration value="newpackage"/>
+          <xs:enumeration value="errata"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+
+    <xs:attribute name="version" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Right now only version '1', '1.4', and '2.0' are in the wild.
+          The differences between them are as yet unknown.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <xs:element name="solution" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Is there something that I must do for this fix to work beyond merely
+        installing the package?  Should I alter a configuration setting myself
+        or what?  This space is for things you must do that the package doesn't
+        do for you when installed.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="rights" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        What are my distribution rights for this package?  Is there a
+        restriction in how I give it out.  Does someone have a copyright?
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="summary" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        The 'title' is supposed to be very short.  The 'description' should
+        leave nothing out.  This is the ground between.  Think of it like an
+        abstract to a research paper.
+        What do I need to know that you can't fit within the title?
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="reboot_suggested" nillable="true">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Should the system be rebooted after the update is applied?
+      </xs:documentation>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:union>
+        <xs:simpleType>
+          <xs:restriction base='xs:string'>
+            <xs:length value="0"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType>
+          <!-- Fedora has this, it should be 'true' so we can use xs:boolean -->
+          <xs:restriction base='xs:string'>
+            <xs:enumeration value="True"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType>
+          <xs:restriction base='xs:boolean'>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:union>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="relogin_suggested" nillable="true">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Should the login session be restarted after the update is applied?
+      </xs:documentation>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:union>
+        <xs:simpleType>
+          <xs:restriction base='xs:string'>
+            <xs:length value="0"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType>
+          <!-- Fedora has this, it should be 'true' so we can use xs:boolean -->
+          <xs:restriction base='xs:string'>
+            <xs:enumeration value="True"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType>
+          <xs:restriction base='xs:boolean'>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:union>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="restart_suggested" nillable="true">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Should the updated service be restarted after the update is applied?
+      </xs:documentation>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:union>
+        <xs:simpleType>
+          <xs:restriction base='xs:string'>
+            <xs:length value="0"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType>
+          <!-- Fedora has this, it should be 'true' so we can use xs:boolean -->
+          <xs:restriction base='xs:string'>
+            <xs:enumeration value="True"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType>
+          <xs:restriction base='xs:boolean'>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:union>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="id" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        How would a user identify this update vs other updates.  This is
+        supposed to be a simple value.  For example, SL-SA:2012-01
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="title" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Please give a nice SHORT human title for this update.
+        If you keep it under 65 chars, it looks nice in an 80 column terminal.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="release" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        What distribution is this released for?  You can be specific or general:
+         - Scientific Linux 7.3 Atomic
+         - Scientific Linux 7.3
+         - Scientific Linux 7 
+         - Scientific Linux
+
+        Whatever you pick, you should have a reason keep using it for
+        any consumer of the update information.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="severity">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Please rate the severity of the problem.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:pattern value="[C|c]ritical|[I|i]mportant|[M|m]oderate|[L|l]ow|[N|n]one"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="issued">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        When was this update released?
+
+        I'd love to make this either xs:dateTime or xs:date....
+        Alas, Suse is epoch time and Fedora is not xs:dateTime
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="date" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="updated">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        If you had to modify the update text, but it is still the same source code,
+        you can indicate that you've made a change here.
+        This is for making corrections to description errors and such.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="date" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="references">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Any sites with documentation on this update?
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="reference"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="reference">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Any documentation needs to come with some data
+
+        Where can I find this documentation?
+
+        What should this documentation be titled?  Try to keep it under
+        65 char to avoid linewrap in an 80 column terminal.
+
+        What kind of documentation is it?
+         is it a commit log or branch of a source tree?*
+         a bug in github? *
+         a bug in fate? (OpenSuse)*
+         a bug in bugzilla?
+         a cve?
+         something that doesn't fit well into any of these?*
+
+        Is there an 'ID' associated with this documentation?
+
+        * These items cannot be searched for with the plugin
+          at this time.  That may change in the future.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType mixed="true">
+      <xs:attribute name="href" use="required" type="xs:anyURI"/>
+      <xs:attribute name="title" type="xs:string"/>
+      <xs:attribute name="type" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="commit"/>
+            <xs:enumeration value="bugzilla"/>
+            <xs:enumeration value="cve"/>
+            <xs:enumeration value="self"/>
+            <xs:enumeration value="other"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="id" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="description">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Describe the update.  The package's description says why
+        you might install this rpm.
+
+        Why should you apply this update?  What does it contain?
+      </xs:documentation>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:whiteSpace value="preserve"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="pkglist">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Just a container for collections of package lists
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="collection"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="collection">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        A collection can be used to associate particular updates with a
+        particular release of a given distribution.
+        You can set 'name' to the name of the release
+        You can set the attribute 'short' to a short name for the release
+        So if you wanted you could make releases for all of Scientific Linux
+        and make a collection for Scientific Linux 5 with a shortname of SL5
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice>
+        <xs:sequence>
+          <xs:element ref="name"/>
+          <xs:element maxOccurs="unbounded" ref="package"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" ref="package"/>
+          <xs:element minOccurs="0" ref="name"/>
+        </xs:sequence>
+      </xs:choice>
+      <xs:attribute name="short" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="name" type="xs:string"/>
+
+  <xs:simpleType name="epochValues">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        The rpm epoch is messy, it can be NULL (which is 0) or a positive number
+      </xs:documentation>
+    </xs:annotation>
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:nonNegativeInteger"/>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value=""/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+
+  <xs:element name="package">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Each update must feature a package or else we are not updating a package
+        this lists what we must have and what we can know about a package.
+
+        Your package provider will probably use the attributes of this to
+        determine if the package is an update to your installed packages.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element minOccurs="0" ref="reboot_suggested"/>
+        <xs:element minOccurs="0" ref="restart_suggested"/>
+        <xs:element minOccurs="0" ref="relogin_suggested"/>
+        <xs:element minOccurs="1" ref="filename"/>
+        <xs:element minOccurs="0" ref="sum"/>
+      </xs:all>
+
+      <xs:attribute name="arch" use="required">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            There is a specific list of valid arches.  This should work for
+            most anything we expect to see.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <!-- This list should be synced up with rpm/macros.in -->
+          <xs:restriction base="xs:token">
+            <!-- any system -->
+            <xs:enumeration value="noarch"/>
+            <xs:enumeration value="src"/>
+            <xs:enumeration value="nosrc"/>
+            <!-- x86 / x86_64 -->
+            <xs:enumeration value="i386"/>
+            <xs:enumeration value="i486"/>
+            <xs:enumeration value="i586"/>
+            <xs:enumeration value="i686"/>
+            <xs:enumeration value="x86_64"/>
+            <!-- arm -->
+            <xs:enumeration value="aarch64"/>
+            <xs:enumeration value="armv7tnhl"/>
+            <xs:enumeration value="armv7thl"/>
+            <xs:enumeration value="armv7nhl"/>
+            <xs:enumeration value="armv7hl"/>
+            <xs:enumeration value="armv7l"/>
+            <xs:enumeration value="armv6l"/>
+            <xs:enumeration value="armv5tejl"/>
+            <xs:enumeration value="armv5tel"/>
+            <xs:enumeration value="armv5l"/>
+            <xs:enumeration value="armv4tl"/>
+            <xs:enumeration value="armv4l"/>
+            <xs:enumeration value="armv3l"/>
+            <!-- ppc / ppc64 -->
+            <xs:enumeration value="ppc"/>
+            <xs:enumeration value="ppc64"/>
+            <!--ia64 -->
+            <xs:enumeration value="ia64"/>
+            <!--s390 -->
+            <xs:enumeration value="s390"/>
+            <xs:enumeration value="s390x"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="epoch" type="epochValues"/>
+      <xs:attribute name="name" use="required"/>
+      <xs:attribute name="release" use="required" type="xs:string"/>
+      <xs:attribute name="src" type="xs:anyURI"/>
+      <xs:attribute name="version" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="filename" type="xs:string"/>
+
+  <xs:simpleType name="checksumValues">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        To get the restriction of the checksums we must first
+        create a simple type that limits their values to what we want
+      </xs:documentation>
+    </xs:annotation>
+    <xs:union>
+      <xs:simpleType>
+        <!-- md5 -->
+        <xs:restriction base="xs:string">
+          <xs:length value="32"/>
+          <xs:pattern value="[0-9a-fA-F]*"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <!-- sha / sha1 -->
+        <xs:restriction base="xs:string">
+          <xs:length value="40"/>
+          <xs:pattern value="[0-9a-fA-F]*"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <!-- sha256 -->
+        <xs:restriction base="xs:string">
+          <xs:length value="64"/>
+          <xs:pattern value="[0-9a-fA-F]*"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <!-- sha384 -->
+        <xs:restriction base="xs:string">
+          <xs:length value="96"/>
+          <xs:pattern value="[0-9a-fA-F]*"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <!-- sha512 -->
+        <xs:restriction base="xs:string">
+          <xs:length value="128"/>
+          <xs:pattern value="[0-9a-fA-F]*"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+
+  <xs:complexType name="checksum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        To require the attributes that match the checksums we must extend
+        the values with these attributes
+      </xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="checksumValues">
+        <xs:attribute name="type" use="required">
+          <xs:simpleType>
+            <xs:restriction base="xs:token">
+              <xs:enumeration value="md5"/>
+              <xs:enumeration value="sha"/>
+              <xs:enumeration value="sha1"/>
+              <xs:enumeration value="sha256"/>
+              <xs:enumeration value="sha384"/>
+              <xs:enumeration value="sha512"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:element name="sum" type="checksum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Then we simply put it all together to make the sum
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+</xs:schema>

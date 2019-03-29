@@ -1,0 +1,42 @@
+start = element updates {
+  element update {
+    attribute from { "maintainer@redhat.com" }?,
+    attribute status { "stable" },
+    attribute type { "recommended" | "security" | "optional" | "feature" },
+    attribute version { xsd:string },
+    element id { text },
+    element title { text },
+    element release { text }?,
+    element issued {
+      attribute date { private.unixts },
+    },
+    element reboot_suggested { True | False }?,
+    element references {
+      element reference {
+        attribute href { xsd:anyURI },
+        attribute id { xsd:string },
+        attribute title { xsd:string },
+        attribute type { "bugzilla" | "cve" },
+      }+
+    }?,
+    element pkglist {
+      element collection {
+        attribute short { xsd:string },
+        element name { xsd:string },
+        element package {
+          attribute name { xsd:string },
+          attribute version { text }?,
+          attribute release { text }?,
+          attribute epoch { private.nonnegative }?,
+          attribute arch { private.archenum },
+          attribute src { xsd:anyURI }?,
+          element filename { text },
+          element sum {
+            attribute type { "md5" | "sha256" | "sha512" }
+          }?,
+        }+
+      },
+    },
+  }+
+}
+
