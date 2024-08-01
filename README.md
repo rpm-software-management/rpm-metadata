@@ -5,8 +5,8 @@ created originally for the Yellowdog Updater, Modified (YUM) and supported by a 
 of RPM package managers.
 
 Currently, there is no reference files for this, so this repository contains a collection of
-schema files from various sources, which will hopefully be used to create a rationalized,
-uniform definition of what the metadata format actually is.
+schema files from various sources (under `historical/`), which will hopefully be used to create
+a rationalized, uniform definition of what the metadata format actually is.
 
 History
 -------
