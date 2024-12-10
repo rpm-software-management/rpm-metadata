@@ -5,18 +5,29 @@
            vc:minVersion="1.1">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-	The permissive updateinfo schema is designed to validate all
-	known updateinfo variants, including all the oddities that have been
-	found in the wild. These oddities are documented, along with advice
-	on what tooling should do with each of them in order to be as correct
-	as possible.
+	The transitional updateinfo schema is designed to validate existing
+        updateinfo files as in use by recent/current versions of major Linux
+        distributions. Its goal is to validate what would be reasonable
+        updateinfo files, with clear documentation about constraints, and what
+        attributes and elements should be ignored by existing tooling, and
+        thus may be not allowed in a strict schema.
 
-	This schema is useful to those who are writing software to parse the
-	updateinfo from various yum/dnf repositories.
-
-	For producing updateinfo documents, validate against the strict schema.
+        Software aiming to parse or produce updateinfo XML files for modern
+        Linux distributions should be able to use this schema, as it represents
+        the reasonable current common ground, and allowances for reasonable
+        variations.
 
 	Remember: be strict in what you emit, permissive in what you parse.
+
+        The following updateinfo is known to validate with the permissive
+        schema but not with this transitional schema:
+
+        - Fedora 18 and earlier (EoL 2014-01-14) and EPEL4 (EoL 2012-02-29)
+          are not valid due to the reboot_suggested change.
+        - Fedora 17 and openSUSE 11 (EoL 2019-03-31) due to having duplicate
+          update IDs.
+        - Alma Linux 8 due to the reboot_suggested change.
+        - Rocky Linux prior to the fix for https://github.com/resf/distro-tools/issues/32
       </xs:documentation>
     </xs:annotation>
   <xs:element name="updates">
@@ -26,7 +37,8 @@
 	elements, each describing a particular available update, which can be
 	comprised of many individual package updates.
 
-	OpenSUSE 11.0 is the only place where an xmlns attribute is present.
+        There is no current standard as to what xmlns should be set to.
+        OpenSUSE 11.0 is the only place where an xmlns attribute is present.
 	If an `xmlns` attribute with the value "http://novell.com/package/metadata/suse/updateinfo"
 	is found, it should be ignored.
       </xs:documentation>
@@ -46,121 +58,133 @@
 	      Convention is that each update is issued by a vendor, and any
 	      references to third party identifiers such as a CVE appear in
 	      the references element for that update.
+
+              There are very few constraints about what constitutes an update.
+              Multiple updates can refer to the same package. Multiple updates
+              can refer to the exact same version of a package. Many elements
+              and attributes are optional. Packages and exact package versions
+              referred to are NOT required to be present in the repository.
 	    </xs:documentation>
 	  </xs:annotation>
-	  <!-- Fedora 17 has duplicates -->
-	  <!-- <xs:unique name="updateId">
+	  <xs:unique name="updateId">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">
+                Each update described in updateinfo has an ID. Within a single
+                updateinfo file (and thus rpm repository), IDs MUST be unique.
+
+                Fedora 17 (EoL July 2013) did contain some duplicate entries,
+                and this is the only known occurrance of this uniqueness not
+                being true.
+
+                Across repositories, there is no enforced constraint on uniqueness.
+                Vendors producing updateinfo SHOULD NOT create ambiguity by re-using
+                IDs across repositories, especially across repositories designed
+                to be used together (e.g. core and optional package repositories for
+                a single OS version).
+
+                Producers SHOULD aim to as much as possible reduce ambiguity for
+                third party tools parsing updateinfo. While produces MAY use the
+                same ID across multiple repositories if the advisory is common,
+                this is something that can create ambiguity and SHOULD NOT be done.
+
+                For example: Repositories A and B are for the same version of
+                an OS, each containing an optional feature. If package X is
+                identical in both, it could be reasonable for a producer of
+                updateinfo to assume it is okay to use the same update ID in the
+                updateinfo for an update to package X in both the A and B
+                repositories. However, producers SHOULD NOT use the same ID in
+                this scenario as it creates ambiguity for external
+                tooling.
+
+                In this example, external tooling can very easily see different
+                content of A and B as updates are made to each repository and
+                the tooling refreshes the information it has from each. While it
+                may be possible to reason around how tooling should behave when
+                an update is added, any change to the update (such as a change
+                in description or severity) adds complexity and ambiguity that
+                is easily resolved by the publisher of updateinfo using unique IDs.
+              </xs:documentation>
+            </xs:annotation>
 	    <xs:selector xpath="*/update"/>
 	    <xs:field xpath="id"/>
-	  </xs:unique> -->
+	  </xs:unique>
 	</xs:element>
       </xs:sequence>
     </xs:complexType>
-    <!-- Fedora 17 has duplicates -->
-<!--    <xs:key name="updateIdKey">
+    <xs:key name="updateIdKey">
       <xs:selector xpath=".//update"/>
       <xs:field xpath="id"/>
-    </xs:key> -->
+    </xs:key>
   </xs:element>
   <xs:complexType name="updateType">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">
-	Each update is represented by an update element. Very few elements
-	are required to represent an update. Software which parses updateinfo
-	must be careful about fields that are optional, as well as ones that
-	are effectively useless in determining any further information, and
-	thus should be ignored.
-      </xs:documentation>
-    </xs:annotation>
-    <!-- We can't use <xs:all> as Rocky has <description> twice ! -->
-    <xs:choice minOccurs="1" maxOccurs="unbounded">
+    <xs:all>
       <xs:annotation>
-	<xs:documentation xml:lang="en">
-	  In theory, there can only be one id, title, and severity of each
-	  update. In theory, update IDs are unique in the file and not
-	  duplicated.
-
-	  In practice, duplicates have been observed in the wild.
-	</xs:documentation>
+        <xs:documentation xml:lang="en">
+	  Each update is represented by an update node. The minimum amount
+          of information needed for a valid update is very little. Nearly
+          everything is effectively optional, so care must be taken.
+          
+          Software which parses updateinfo MUST BE careful about fields that
+          are optional, and the relatively few constraints placed on the
+          information present.
+        </xs:documentation>
       </xs:annotation>
       <xs:element type="xs:string" name="id" minOccurs="1" maxOccurs="1">
 	<xs:annotation>
 	  <xs:documentation xml:lang="en">
-	    Only one id element must be present in each update. There have
-	    not been any cases in the wild of within a single element, having
-	    more than one id element.
+            Each update MUST have one, and only one ID. Each update id MUST
+            be unique within a single updateinfo.xml file.
 
-	    Only one update element per id should be present in the document.
-	    i.e. the id should be usable as a primary key.
+            See the documentation on the uniqueness constraint for details.
 
-	    However, it has been observed in the wild that this is not the case,
-	    most notably in the Fedora 17 (released 2012, EoL in 2013)
-	    updateinfo meta-data, which includes a few duplicates. In this
-	    specific case, the only difference in the second occurrence is the
-	    addition of a single element (reboot_suggested), and thus taking
-	    the second occurrence of the update element for a specific id as the
-	    canonical one would ensure correctness.
-
-            openSUSE 11 used the source package name as the update ID. In this
-            case there is limited opportunity to uniquely identify an update.
-            Tooling needing to work on openSUSE 11 should determine the behavior
-            of that OS.
-
-            The openSUSE Leap 15.1 oss repository is also known to contain
-            duplicate update IDs.
+	    A few real-world updateinfo.xml files have duplicate IDs, see
+            the permissive schema for details.
 	  </xs:documentation>
 	</xs:annotation>
       </xs:element>
       <xs:element type="xs:string" name="release" minOccurs="0" maxOccurs="1">
 	<xs:annotation>
 	  <xs:documentation xml:lang="en">
-	    The release element has been observed absent in the wild.
-	    e.g. Amazon Linux 2023 does not have it.
-	    Most in the wild repositories use one value for every release
-	    element in every update element, thus having massive duplication of
-	    the one string. For example, every update in the Fedora 40 repository
-	    uses the 'Fedora 40' string.
+            This element SHOULD NOT be created, and SHOULD NOT be used
+            by tools consuming updateinfo.xml. There is no standard as to
+            the content of this element.
 
-	    The Alma Linux 8 BaseOS repository has been observed using '0' as
-	    the content of the release element.
-
-	    As such, this element is not useful for working out what release of
-	    a distribution an update is for, especially as a yum repository
-	    is for a specific distribution.
-
-	    Tooling should use other methods for detecting what OS is running,
-	    and only resort to this (optional) element as a last resort.
+            Some real-world updateinfo.xml files have used this to contain
+            the major version of the OS an update refers to, but this is not
+            universal. See the permissive schema for details.
 	  </xs:documentation>
 	</xs:annotation>
       </xs:element>
       <xs:element name="severity" type="severityType" minOccurs="0" maxOccurs="1">
 	<xs:annotation>
 	  <xs:documentation xml:lang="en">
-	    Usually associated with the update type of security, this shouldn't
-	    be assumed.
+            Updates MAY have an associated severity as advice to the user.
+
+	    While typically this is associated with a security update,
+            this SHOULD NOT be assumed by tooling. Only updates of type
+            security SHOULD BE assumed to be security updates. 
 	  </xs:documentation>
 	</xs:annotation>
       </xs:element>
       <xs:element name="pushcount" type="xs:int" minOccurs="0" maxOccurs="1">
 	<xs:annotation>
 	  <xs:documentation xml:lang="en">
-	    Seems to only be present in Rocky Linux. It is not clear what
-	    information this conveys, thus should not be produced, and should
-	    be ignored by parsers.
+            This element SHOULD NOT be created, and SHOULD NOT be used
+            by tools consuming updateinfo.xml. There is no standard as to
+            the content of this element.
+
+            The presence of this element will likely be invalid in the strict schema.
 	  </xs:documentation>
 	</xs:annotation>
       </xs:element>
       <xs:element type="xs:string" name="title" minOccurs="1" maxOccurs="1">
 	<xs:annotation>
 	  <xs:documentation xml:lang="en">
-	    Each update is required to have a title element. This is a short
-	    description of the update.
+	    Each update MUST have a title element. This is a short description
+            of the update. The content of the element may be empty, and this is
+            valid.
 
-	    It is possible that the element is empty, and this has been observed
-	    in the wild, notably in openSUSE 12 and 13.
-
-	    There are no recorded instances of this element not being present
-	    in the wild.
+            The length of the title SHOULD be 78 or fewer characters.
 	  </xs:documentation>
 	</xs:annotation>
       </xs:element>
@@ -170,6 +194,11 @@
 	    An optional element which contains when the update was last updated.
 	    This could be the packages themselves, or modification to the
 	    meta-data.
+
+            If an update is changed after it is created, this element SHOULD
+            exist and be updated with each change. Tooling parsing this field
+            SHOULD NOT assume that all changes to the update are accompanied
+            by an update of this field.
 	  </xs:documentation>
 	</xs:annotation>
       </xs:element>
@@ -177,42 +206,34 @@
 	<xs:annotation>
 	  <xs:documentation xml:lang="en">
 	    An optional element which contains when the update was first issued.
+
+            This element SHOULD be present and SHOULD correspond to when the
+            update entry was first pushlised in the repository.
+
+            Tooling MUST NOT assume that this date corresponds to when any
+            associated packages were added to the repository. The issued date
+            of an update is independent of when a package was made available.
 	  </xs:documentation>
 	</xs:annotation>
       </xs:element>
       <xs:element type="xs:string" name="summary" minOccurs="0" maxOccurs="1">
 	<xs:annotation>
 	  <xs:documentation xml:lang="en">
-	    A short summary of the update. While the title would be one line,
-	    the summary could be two or three lines of text. The full text is
-	    present in the description.
+	    An optional short summary of the update.
+
+            A summary SHOULD be restricted to fewer than four lines of text.
 	  </xs:documentation>
 	</xs:annotation>
       </xs:element>
       <xs:element type="xs:string" name="message" minOccurs="0" maxOccurs="1">
 	<xs:annotation>
 	  <xs:documentation xml:lang="en">
-	    This element has only been observed in openSUSE meta-data, and
-	    appears to be used as a message to be displayed to the user user
-	    before proceeding with the update.
+            An optional element with a message to be presented to the user
+            prior to applying the update.
 
-	    This does not seem to have been used by package managers such as
-	    dnf, and thus creators of updateinfo cannot rely on the package
-	    manager (or any other tool) presenting this to the user.
-	  </xs:documentation>
-	</xs:annotation>
-      </xs:element>
-      <xs:element type="xs:string" name="description" minOccurs="0" maxOccurs="2">
-	<xs:annotation>
-	  <xs:documentation xml:lang="en">
-	    The full description of the update. Only one description should be
-	    present for each update.
-
-	    Rocky Linux 8 and 9 have been spotted in the wild having two
-	    description elements, each with the same content.
-
-	    The description can be empty, and this has been spotted in the wild
-	    at least in EPEL 5.
+            This element MAY be ignored by tooling, and there SHOULD NOT be
+            an expectation that all package managers will present this message
+            to an end user.
 	  </xs:documentation>
 	</xs:annotation>
       </xs:element>
@@ -222,21 +243,27 @@
 	    Contains optional additional information for the user on addressing
 	    the issue that the update addresses.
 
-	    In the wild, this has been noted to appear in both Alma Linux and
-	    Oracle Linux. Both of these have been seen with the same boilerplate
-	    text repeated for each instance of the solution element.
+            This element MAY be ignored by tooling. There SHOULD NOT be any
+            expectation that a user will see this text.
+
+            Since the only real world occurrences of this element contain
+            duplicate boilerplate text, the strict schema will likely not
+            allow this element.
 	  </xs:documentation>
 	</xs:annotation>
       </xs:element>
       <xs:element type="xs:string" name="rights" minOccurs="0" maxOccurs="1">
 	<xs:annotation>
 	  <xs:documentation xml:lang="en">
-	    Copyright information for the content of the update element.
+	    Optional element containing copyright information for the content
+            of the update element.
 
 	    This has been spotted in the wild being used in Alma Linux, EPEL,
 	    Fedora, Oracle Linux, and Rocky Linux. Notably, in these use cases,
 	    the rights element has only contained copyright information and not
 	    any details on licensing.
+
+            There is no standard as to the content of this element.
 	  </xs:documentation>
 	</xs:annotation>
       </xs:element>
@@ -268,74 +295,81 @@
       <xs:element type="xs:string" name="reboot_suggested" minOccurs="0" maxOccurs="1">
 	<xs:annotation>
 	  <xs:documentation xml:lang="en">
-	    This Boolean element should be per-package rather than at this top
-	    level of the update element.
-
             Software producing updateinfo SHOULD NOT create this element.
+
+	    This element is present in the transitional schema in order to
+            maintain support for some current (at time of writing)
+            distribution versions such as Alma 8 and openSUSE Leap 15.
+
+            For producing updateinfo, the Boolean element that is
+            should be per-package SHOULD be created rather than this top level
+            element.
 
             The per-package flag allows package
 	    managers to not indicate a reboot is required if, for example,
 	    a user only has the documentation sub-package installed rather than
-	    the affected software. Thus, transitional and strict schemas do not
-            contain this element.
+	    the affected software.
 
-	    In the wild, Fedora 10 has some entries where the reboot_suggested
-	    flag is present here, in the top level in the update element.
+            The strict schema will likely not allow this element, leaning on
+            the per-package element.
 	  </xs:documentation>
 	</xs:annotation>
       </xs:element>
-    </xs:choice>
-    <xs:attribute type="xs:string" name="from">
+      <xs:element type="xs:string" name="description" minOccurs="0" maxOccurs="1">
+	<xs:annotation>
+	  <xs:documentation xml:lang="en">
+	    The full description of the update. Only one description should be
+	    present for each update.
+
+	    Rocky Linux 8 and 9 have been spotted in the wild having two
+	    description elements, each with the same content.
+
+	    The description can be empty, and this has been spotted in the wild
+	    at least in EPEL 5.
+	  </xs:documentation>
+	</xs:annotation>
+      </xs:element>
+    </xs:all>
+   <xs:attribute type="xs:string" name="from">
       <xs:annotation>
 	<xs:documentation xml:lang="en">
-	  This attribute contains information of where this particular update
-	  comes from.
+	  This attribute MAY contain information as to the origin of the
+          update. This attribute is optional and SHOULD NOT be created or parsed
+          by tooling.
 
 	  In the wild, most distributions have used a single email address
 	  for all updates. Some repositories have been spotted using what
 	  appears to be user names, as well as email style
-	  &amp;lt;foo@bar&amp;lt;'.
-
-	  The openSUSE schema indicates that while this attribute is intended
-	  to be required, it has been seen missing in the wild. Thus, this
-	  attribute is optional.
+	  &amp;lt;foo@bar&amp;lt;'. Thus, since it does not convey any
+          meaningful information, it SHOULD be ignored and SHOULD NOT be
+          created.
 	</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute type="xs:string" name="author">
       <xs:annotation>
 	<xs:documentation xml:lang="en">
-	  The openSUSE schema does not document this attribute. However, it
-	  has been observed in the wild at least in the Amazon Linux 2023
-	  updateinfo meta-data.
+          This optional attribute MAY contain information as to the author of the
+          update. This attribute is optional and SHOULD NOT be created or parsed
+          by tooling.
+
+          Much like the from attribute, there is no meaningful information
+          per-update that is conveyed by this attribute.
 	</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute type="xs:string" name="status">
-      <xs:annotation>
-	<xs:documentation xml:lang="en">
-	  The status of the update. The openSUSE schema suggests that the only
-	  valid value is 'stable', but 'final' is seen in the wild. At least
-	  a number of Amazon Linux versions have had 'final' in the status
-	  attribute.
-	</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
+    <xs:attribute type="updateStatusType" name="status"/>
     <xs:attribute name="type" type="updateTypeType"/>
     <xs:attribute type="xs:string" name="version">
       <xs:annotation>
 	<xs:documentation xml:lang="en">
-	  This attribute is effectively useless to distinguish anything.
-	  While commonly it will be either 1.4 or 2.0, which would indicate that
-	  it may be a version of the structure, a number of distributions have
-	  a lot of other numbers there.
-	  Alma 8 uses 1-9 in various repositories.
-	  Fedora and EPEL have been consistent with 1.4 for older repositories,
-	  and 2.0 for newer (Fedora 21 and up).
-	  OpenSuSE 11 uses most four digit integers.
-	  OpenSuSE 12, 14, 15, and 42 are either 1 or 2.
-	  Oracle Linux 8 uses 1.
-	  Rocky 8 and 9 uses 2.
+          This optional attribute SHOULD NOT be created or parsed.
+
+          It will likely not be present in the strict schema.
+
+          Real world usage of the version attribute has rendered it
+          not useful in distinguishing any meaningful information and
+          all tooling SHOULD ignore it.
 	</xs:documentation>
       </xs:annotation>
     </xs:attribute>
@@ -377,7 +411,16 @@
 		<xs:attribute type="xs:string" name="name"/>
 		<xs:attribute type="xs:string" name="version"/>
 		<xs:attribute type="xs:string" name="release"/>
-		<xs:attribute type="epochType" name="epoch"/>
+		<xs:attribute type="xs:int" name="epoch">
+                  <xs:annotation>
+                    <xs:documentation xml:lang="en">
+	              The Fedora 10 updateinfo used None for Epoch. This is
+                      no longer valid in the transitional schema, and the
+                      epoch value MUST follow the RPM specification for epoch
+                      validity.
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
 		<xs:attribute type="xs:string" name="arch"/>
 		<xs:attribute type="xs:string" name="src"/>
               </xs:complexType>
@@ -395,13 +438,16 @@
 	<xs:attribute type="xs:string" name="date">
 	  <xs:annotation>
 	    <xs:documentation xml:lang="en">
-	      Time stamp related fields have been seen in at least four formats.
-	      Code parsing updateinfo must understand the following formats:
-	      "2016-12-06", "2016-12-06 09:43", "2016-12-06 09:43:08 UTC" or
-	      "2016-12-06 09:43:08". Since timezone data is typically absent,
-	      treating all as UTC is strongly recommended.
+              The format of this field SHOULD be the ISO8601 format. If timezone
+              data is absent, UTC can be assumed.
 
-	      Creators of updateinfo are encouraged to use ISO8601 formats.
+              For tools reading updateinfo, there are five formats that need to
+              be parsed: "2016-12-06", "2016-12-06 09:43", "2016-12-06 09:43:08 UTC",
+	      "2016-12-06 09:43:08", and UNIX style seconds since the epoch.
+              Since timezone data is typically absent, treating all as UTC is
+              strongly recommended.
+
+              In the strict schema, only ISO8601 will be valid.
 	    </xs:documentation>
 	  </xs:annotation>
 	</xs:attribute>
@@ -516,16 +562,17 @@
     <xs:restriction base="xs:string">
       <xs:annotation>
 	<xs:documentation xml:lang="en">
-	  The openSUSE schema defines the only valid values as either cve or
-	  bugzilla. In practice, this should likely be extended, but yum and
-	  dnf also use this nomenclature as the only options.
-	  As per opensuse-leap-15.4-oss-2024-05-02 (at least), jira is another option.
-	  As per opensuse-leap-15.5-sle-2024-05-23 (at least), fate and github are other options
-	  OpenSuSE 11.4 references launchpad.
-	  OpenSuSE 12.2, 12.3, 13.1 reference sourceforge.
-	  Alma Linux references rhsa and self.
-	  MariaDB repositories reference other.
-	  Amazon Linux 1 references redhat.
+          The id for a reference is specific to that reference type.
+
+          Not all tooling needs to know each reference type and how to treat
+          the id for that reference type.
+
+          The href attribute is a URL for the reference and is usable by
+          tooling with no knowledge of the reference type.
+
+          The current transitional schema restricts the values to currently
+          observed reference types. This should be further defined before
+          being extended.
 	</xs:documentation>
       </xs:annotation>
       <xs:enumeration value="bugzilla"/>
@@ -541,24 +588,16 @@
       <xs:enumeration value="other"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:simpleType name="epochType">
-    <xs:union memberTypes="xs:int epochNoneType" />
-  </xs:simpleType>
-  <xs:simpleType name="epochNoneType">
-    <xs:restriction base="xs:string">
-      <xs:annotation>
-	<xs:documentation xml:lang="en">
-	  The Fedora 10 updateinfo uses None for Epoch. This should be
-	  interpreted as equivalent to an epoch of 0.
-	</xs:documentation>
-      </xs:annotation>
-      <xs:enumeration value="None"/>
-    </xs:restriction>
-  </xs:simpleType>
   <xs:complexType name="packageSumType">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-	Fedora Core 5 has a check-sum (sha1) of each file.
+	Some updateinfo files contain checksums of the package file,
+        such as Fedora Core 5 (sha1) and Rocky 9 (sha256).
+
+        The checksum is redundant with other RPM repository metadata
+        and SHOULD NOT be added to updateinfo.
+
+        It is likely that this will not be allowed in the strict schema.
       </xs:documentation>
     </xs:annotation>
     <xs:simpleContent>
@@ -567,4 +606,35 @@
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
+  <xs:simpleType name="updateStatusType">
+    <xs:restriction base="xs:string">
+      <xs:annotation>
+	<xs:documentation xml:lang="en">
+          This optional attribute MAY contain information about the status of
+          the update.
+
+          Values of 'stable', 'final', 'pending', 'retracted', and 'testing'  have
+          been observed in the wild.
+
+          The values of 'stable' and 'final' are equivalent. These indicate that
+          the update has been broadly released.
+
+          The values of 'pending' and 'testing' are equivalent. These indicate
+          that the update has not been broadly released and is in a testing
+          or other pre-release phase.
+
+          The value of 'retracted' indicates that the update has been withdrawn.
+          Tooling SHOULD NOT use 'retracted' updates to decide what updates need
+          to be installed on a system. The presence of a retracted update
+          SHOULD be treated as historical information and presented as such.
+	</xs:documentation>
+      </xs:annotation>
+      <xs:enumeration value="stable"/>
+      <xs:enumeration value="final"/>
+      <xs:enumeration value="pending"/>
+      <xs:enumeration value="retracted"/>
+      <xs:enumeration value="testing"/>
+    </xs:restriction>
+  </xs:simpleType>
+
 </xs:schema>
