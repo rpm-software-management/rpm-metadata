@@ -1,0 +1,13 @@
+<updates>
+  <!-- Two updates with the same ID is invalid -->
+  <update>
+    <id>EXAMPLE-1</id>
+    <title>Example Advisory</title>
+    <pkglist/>
+  </update>
+  <update>
+    <id>EXAMPLE-1</id>
+    <title>Example Advisory with duplicate ID</title>
+    <pkglist/>
+  </update>
+</updates>

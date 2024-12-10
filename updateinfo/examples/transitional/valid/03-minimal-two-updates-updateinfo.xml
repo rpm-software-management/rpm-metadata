@@ -1,0 +1,13 @@
+<updates>
+  <!-- Absolute bare minimum update, but two of them -->
+  <update>
+    <id>MINIMAL-EXAMPLE-1</id>
+    <title>Minimal content needed for an update</title>
+    <pkglist/>
+  </update>
+  <update>
+    <id>MINIMAL-EXAMPLE-2</id>
+    <title>Minimal content needed for an update</title>
+    <pkglist/>
+  </update>
+</updates>

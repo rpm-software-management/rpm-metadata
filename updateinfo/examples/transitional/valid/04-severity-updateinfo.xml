@@ -1,0 +1,15 @@
+<updates>
+  <!-- This example contains severity information for the minimal possible update.  -->
+  <update>
+    <id>UPDATE-1</id>
+    <title>A Critical update</title>
+    <severity>Critical</severity>
+    <pkglist/>
+  </update>
+  <update>
+    <id>UPDATE-2</id>
+    <title>An Important update</title>
+    <severity>Important</severity>
+    <pkglist/>
+  </update>
+</updates>
