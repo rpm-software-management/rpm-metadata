@@ -44,8 +44,17 @@ and verify its correctness, and how to parse them.
 Schema
 ------
 
-Currently, only a permissive  XML Schema Definition (XSD) document is provided.
-This describes what tooling should accept as valid, and documentation within
-the schema.
+There are currently two defined schemas provided as XML Schema Definition (XSD) documents.
+The permissive schema will validate all known real-world updateinfo files going
+as far back as Fedora Core 5 era (2006). The transitional schema differs in
+that its goal is to be representitive of what would be reasonable to expect
+in modern (2024) repositories.
 
-See [Permissive XML Schema for updateinfo.xml](updateinfo-permissive.xsd)
+See [Permissive XML Schema for updateinfo.xml](updateinfo-permissive.xsd) and
+[Transitional XML Schema for updateinfo.xml](updateinfo-transitional.xsd).
+
+In future, a strict schema will further clarify what the content of an
+updateinfo file should be and the meaning of each element and attribute.
+
+It is always a good idea to be permissive in what you parse and strict in
+what you emit.
