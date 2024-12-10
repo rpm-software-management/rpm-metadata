@@ -1,0 +1,10 @@
+<updates>
+  <!-- Only one description should be present -->
+  <update>
+    <id>EXAMPLE-1</id>
+    <title>Example Advisory</title>
+    <description>Description Number 1</description>
+    <description>A second Description</description>
+    <pkglist/>
+  </update>
+</updates>

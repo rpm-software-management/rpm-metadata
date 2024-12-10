@@ -1,0 +1,41 @@
+<updates>
+  <!-- This example shows how a single package can have several available
+       updates to different versions with different severity ratings for
+       each update. -->
+
+  <!-- In this example, the installed 'foo' package is version 1.0,
+       and the rpm repository contains version 1.0.1, 1.0.2, and 1.0.3.
+       In presenting available updates to the user, only 1.0.1 and 1.0.2
+       have an update in updateinfo. It is assumed that 1.0.3 would
+       address both UPDATE-1 and UPDATE-2 and a package manager can install
+       the highest version of package 'foo' available. -->
+
+  <!-- Both of these updates are designated security updates -->
+  <update type="security">
+    <id>UPDATE-2</id>
+    <title>Fix a low severity issue in foo</title>
+    <issued date="2024-01-01 00:00:00"/>
+    <severity>Low</severity>
+    <pkglist>
+      <collection short="good-packages">
+        <name>A collection of good packages</name>
+        <package arch="noarch" epoch="0" name="foo" release="1" src="http://example.com/foo-1.0.2-1.noarch.rpm" version="1.0.2">
+          <filename>package-name-1.0.2-1.noarch.rpm</filename>
+        </package>
+      </collection>
+    </pkglist>
+  </update>
+  <update type="security">
+    <id>UPDATE-1</id>
+    <title>Fix an important issue in foo</title>
+    <severity>Important</severity>
+    <pkglist>
+      <collection short="good-packages">
+        <name>A collection of good packages</name>
+        <package arch="noarch" epoch="0" name="foo" release="1" src="http://example.com/foo-1.0.1-1.noarch.rpm" version="1.0.1">
+          <filename>foo-1.0.1-1.noarch.rpm</filename>
+        </package>
+      </collection>
+    </pkglist>
+  </update>
+</updates>

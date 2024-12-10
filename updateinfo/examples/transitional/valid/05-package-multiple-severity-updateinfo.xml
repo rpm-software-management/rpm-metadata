@@ -1,0 +1,36 @@
+<updates>
+  <!-- This example shows how a single package can have multiple updates
+       available with different severities. In this case, if version an
+       earlier version of package-name is installed (e.g. 1.0) and tooling
+       wants to indicate the severity applicable to updating the package,
+       Critical would be correct as it is the highest severity level
+       for an update to package-name out of the two updates (UPDATE-1
+       and UPDATE-2) describing changes.
+  -->
+  <update>
+    <id>UPDATE-1</id>
+    <title>A Critical update</title>
+    <severity>Critical</severity>
+    <pkglist>
+      <collection short="good-packages">
+        <name>A collection of good packages</name>
+        <package arch="noarch" epoch="0" name="package-name" release="1" src="http://example.com/package-name-1.0.1-1.noarch.rpm" version="1.0.1">
+          <filename>package-name-1.0.1-1.noarch.rpm</filename>
+        </package>
+      </collection>
+    </pkglist>
+  </update>
+  <update>
+    <id>UPDATE-2</id>
+    <title>An Important update</title>
+    <severity>Important</severity>
+    <pkglist>
+      <collection short="good-packages">
+        <name>A collection of good packages</name>
+        <package arch="noarch" epoch="0" name="package-name" release="1" src="http://example.com/package-name-1.0.1-1.noarch.rpm" version="1.0.1">
+          <filename>package-name-1.0.1-1.noarch.rpm</filename>
+        </package>
+      </collection>
+    </pkglist>
+  </update>
+</updates>
